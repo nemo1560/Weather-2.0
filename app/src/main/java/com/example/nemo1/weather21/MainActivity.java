@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         getAPIWeather();
     }
 
+    //run present for process getAPI
     public void getAPIWeather(){
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -116,11 +117,11 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         uv.setText(current.getUv());
         temp = current.getTemp_c();
         currenttemp.setText(temp);
-        creatService();
+        creatService(temp);
     }
 
     //Tao service class
-    public void creatService(){
+    public void creatService(String temp){
         intentService = new Intent(this,WeatherService.class);
         intentService.putExtra("temp",temp);
         startService(intentService);
@@ -134,7 +135,8 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
     @Override
     protected void onPause() {
         super.onPause();
-
+        Toast.makeText(this,"Chuong trinh se tu dong cap nhat thoi tiet",Toast.LENGTH_SHORT).show();
+        creatService(temp);
     }
 
     @Override
@@ -146,7 +148,5 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
     @Override
     protected void onStop() {
         super.onStop();
-        Toast.makeText(this,"Chuong trinh se tu dong cap nhat thoi tiet",Toast.LENGTH_SHORT).show();
-        presenter.process();
     }
 }

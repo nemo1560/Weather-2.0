@@ -1,6 +1,7 @@
 package com.example.nemo1.weather21.presenter;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.ProgressBar;
 
 import com.example.nemo1.weather21.entity.Condition;
@@ -47,6 +48,7 @@ public class Presenter implements SendPresenter,SendLocation {
 
     @Override
     public void onSendLocation(String location) {
+        Log.d("location-name",location);
         api = new API(this,progressBar,context);
         api.LoadAPI(location);
     }
