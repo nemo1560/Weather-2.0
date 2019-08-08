@@ -16,14 +16,12 @@ import com.example.nemo1.weather21.view.SendView;
 
 public class Presenter implements SendPresenter,SendLocation {
     private SendView sendView;
-    private ProgressBar progressBar;
     private API api;
     private GetLocation getLocation;
     private Context context;
 
-    public Presenter(SendView sendView, ProgressBar progressBar, Context context) {
+    public Presenter(SendView sendView, Context context) {
         this.sendView = sendView;
-        this.progressBar = progressBar;
         this.context = context;
     }
 
@@ -49,7 +47,7 @@ public class Presenter implements SendPresenter,SendLocation {
     @Override
     public void onSendLocation(String location) {
         Log.d("location-name",location);
-        api = new API(this,progressBar,context);
+        api = new API(this,context);
         api.LoadAPI(location);
     }
 }

@@ -17,18 +17,15 @@ import retrofit2.Response;
 
 public class API {
     private SendPresenter sendPresenter;
-    private ProgressBar loading;
     private GetLocation getLocation;
     private Context context;
 
-    public API(SendPresenter sendPresenter, ProgressBar loading, Context context) {
-        this.loading = loading;
+    public API(SendPresenter sendPresenter , Context context) {
         this.sendPresenter = sendPresenter;
         this.context = context;
     }
 
     public void LoadAPI(String location) {
-        loading.setVisibility(View.VISIBLE); //set loading animation when call API
         GetWeatherAPI getWeatherAPI = RetrofitInstance.RetrofitInstance().create(GetWeatherAPI.class);
         Call<Weather> weatherCall = getWeatherAPI.getWeather(location);
         weatherCall.enqueue(new Callback<Weather>() {
@@ -40,7 +37,6 @@ public class API {
                 sendPresenter.getConditionsuccessfully(condition);
                 sendPresenter.getCurrentsuccessfully(current);
                 sendPresenter.getLocationsuccessfully(location);
-                loading.setVisibility(View.GONE);
             }
             @Override
             public void onFailure(Call<Weather> call, Throwable t) {
