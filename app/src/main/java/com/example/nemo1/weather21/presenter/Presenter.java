@@ -1,53 +1,65 @@
 package com.example.nemo1.weather21.presenter;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
-import android.widget.ProgressBar;
 
 import com.example.nemo1.weather21.entity.Condition;
+import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
-import com.example.nemo1.weather21.model.API;
 import com.example.nemo1.weather21.model.GetLocation;
+import com.example.nemo1.weather21.model.Intents;
 import com.example.nemo1.weather21.model.SendLocation;
 import com.example.nemo1.weather21.model.SendPresenter;
+import com.example.nemo1.weather21.model.SharedPreference;
+import com.example.nemo1.weather21.service.WeatherService;
 import com.example.nemo1.weather21.view.SendView;
 
 
-public class Presenter implements SendPresenter,SendLocation {
+public class Presenter implements SendLocation {
     private SendView sendView;
-    private API api;
     private GetLocation getLocation;
     private Context context;
+    private Location location;
+    private Condition condition;
+    private Country country;
+    private Current current;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction() == Intents.TEMP){
+                location = (Location) intent.getSerializableExtra("location");
+                condition = (Condition) intent.getSerializableExtra("condition");
+                current = (Current) intent.getSerializableExtra("current");
+                country = (Country) intent.getSerializableExtra("country");
+                sendView.getCountryInfo(country);
+                sendView.onViewCondition(condition);
+                sendView.onViewCurrent(current);
+                sendView.onViewLocation(location);
+            }
+        }
+    };
 
     public Presenter(SendView sendView, Context context) {
         this.sendView = sendView;
         this.context = context;
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intents.TEMP);
+        context.registerReceiver(broadcastReceiver,intentFilter);
+
     }
 
     public void process() {
         getLocation = new GetLocation(context,this);
     }
-
-    @Override
-    public void getLocationsuccessfully(Location location) {
-        sendView.onViewLocation(location);
-    }
-
-    @Override
-    public void getCurrentsuccessfully(Current current) {
-        sendView.onViewCurrent(current);
-    }
-
-    @Override
-    public void getConditionsuccessfully(Condition condition) {
-        sendView.onViewCondition(condition);
-    }
-
     @Override
     public void onSendLocation(String location) {
-        Log.d("location-name",location);
-        api = new API(this,context);
-        api.LoadAPI(location);
+        Log.d("location",location);
+        new SharedPreference(context).edit().putString("location",location).apply();
+        Intent intent = new Intent(context, WeatherService.class);
+        context.startService(intent);
     }
 }

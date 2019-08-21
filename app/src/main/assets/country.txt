@@ -1,0 +1,27 @@
+{
+  "ten_nuoc":[
+    {"ten":"AFGHANISTAN" , "viet_tat":"AF"},
+    {"ten":"ALAND ISLANDS","viet_tat": "AX"},
+    {"ten":"ALBANIA","viet_tat":"AL"},
+    {"ten":"ALGERIA","viet_tat":"DZ"},
+    {"ten":"AMERICAN SAMOA","viet_tat":"AS"},
+    {"ten":"ANDORRA","viet_tat":"AD"},
+    {"ten":"ANGOLA","viet_tat":"AO"},
+    {"ten":"ANGUILLA","viet_tat":"AI"},
+    {"ten":"ANTARCTICA","viet_tat":"AQ"},
+    {"ten":"ANTIGUA AND BARBUDA","viet_tat":"AG"},
+    {"ten":"ARGENTINA","viet_tat":"AR"},
+    {"ten":"ARMENIA","viet_tat":"AM"},
+    {"ten":"ARUBA","viet_tat":"AW"},
+    {"ten":"AUSTRALIA","viet_tat":"AU"},
+    {"ten":"AUSTRIA","viet_tat":"AT"},
+    {"ten":"AZERBAIJAN","viet_tat":"AZ"},
+    {"ten":"BAHAMAS","viet_tat":"BS"},
+    {"ten":"BAHRAIN","viet_tat":"BH"},
+    {"ten":"BANGLADESH","viet_tat":"BD"},
+    {"ten":"BARBADOS","viet_tat":"BB"},
+    {"ten":"BELARUS","viet_tat":"BY"},
+    {"ten":"BELGIUM","viet_tat":"BE"},
+    {"ten":"BELIZE","viet_tat":"BZ"}
+  ]
+}

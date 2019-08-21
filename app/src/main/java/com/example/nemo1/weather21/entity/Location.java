@@ -1,6 +1,8 @@
 package com.example.nemo1.weather21.entity;
 
-public class Location {
+import java.io.Serializable;
+
+public class Location implements Serializable {
 
     private String region;
 

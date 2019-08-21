@@ -2,50 +2,58 @@ package com.example.nemo1.weather21;
 
 import android.Manifest;
 import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Build;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.nemo1.weather21.custom.AlarmUtils;
 import com.example.nemo1.weather21.custom.CustomTextView;
 import com.example.nemo1.weather21.entity.Condition;
+import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
 import com.example.nemo1.weather21.model.Intents;
 import com.example.nemo1.weather21.presenter.Presenter;
-import com.example.nemo1.weather21.service.WeatherService;
 import com.example.nemo1.weather21.view.SendView;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity implements SendView, View.OnClickListener {
-
-    private CustomTextView name,country,cloud,uv,currenttemp;
+    private CustomTextView cloud,uv,currenttemp,time;
+    private ImageView status,country;
     ProgressBar loading;
     private Presenter presenter;
     private static String temp = "";
     private AlarmManager alarmManager;
+    private Country countryInfo;
     private static final int REQUEST_LOCATION_PERMISSION = 100;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction() == Intents.TEMP){
-                if(intent.getStringExtra("TEMP") != null){
-                    temp = intent.getStringExtra("TEMP");
+            if(intent.getAction() == Intents.NOTI){
+                if(intent.getStringExtra("NOTI") != null){
                     creatService();
                 }
             }
@@ -56,21 +64,52 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        name = findViewById(R.id.name);
         country = findViewById(R.id.country);
         cloud = findViewById(R.id.cloud);
         uv = findViewById(R.id.uv);
         currenttemp = findViewById(R.id.temp);
+        status = findViewById(R.id.status);
         loading = findViewById(R.id.loading);
+        time = findViewById(R.id.time);
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         checkPermission();
-        presenter = new Presenter(this,this);
-        initEvent(currenttemp);
+        initEvent();
+    }
+
+    private void notConnect() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("Lỗi kết nối")
+                .setMessage("Thiết bị của bạn chưa kết nối mạng")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        builder.create().show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(isNetworkConnected()){
+            loading.setVisibility(View.VISIBLE);
+            getAPIWeather();
+        }else {
+            notConnect();
+        }
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return connectivityManager.getActiveNetworkInfo() != null;
     }
 
     //Check permission GPS granted.
@@ -95,39 +134,84 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         }
     }
 
-    public void initEvent(CustomTextView currenttemp) {
+    public void initEvent() {
         currenttemp.setOnClickListener(this);
-        getAPIWeather();
-        creatService();
+        country.setOnClickListener(this);
     }
 
     //run present for process getAPI
     public void getAPIWeather(){
+        presenter = new Presenter(this,this);
         presenter.process();
     }
 
     @Override
     public void onClick(View v) {
         if(v.getId() == currenttemp.getId()){
-            loading.setVisibility(View.VISIBLE); //set loading animation when call API
-            getAPIWeather();
-            Toast.makeText(this,"Checking",Toast.LENGTH_SHORT).show();
+           if(isNetworkConnected()){
+               loading.setVisibility(View.VISIBLE);
+               getAPIWeather();
+//               Toast.makeText(this,"Checking",Toast.LENGTH_SHORT).show();
+           }else {
+               notConnect();
+           }
+        }if(v.getId() == country.getId()){
+            countryInfo.getCapital();
         }
     }
 
     @Override
     public void onViewLocation(Location location) {
-        name.setText(location.getName());
-        country.setText(location.getCountry());
+        time.setText(location.getLocaltime());
     }
 
     @Override
-    public void onViewCurrent(Current current) {
-        loading.setVisibility(View.GONE);
+    public void onViewCurrent(final Current current) {
         cloud.setText(current.getCloud());
-        uv.setText(current.getUv());
+        setUV(current.getUv());
         temp = current.getTemp_c();
+        setTemp(temp);
+        status.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WeatherInfoFragment weatherInfoFragment = WeatherInfoFragment.newInstance(current);
+                weatherInfoFragment.show(getSupportFragmentManager(),"weatherInfo");
+            }
+        });
+    }
+
+    private void setTemp(String temp) {
+        Double t = Double.valueOf(temp);
+        if(t.intValue() < 10){
+            currenttemp.setTextColor(Color.WHITE);
+        }else if(t.intValue() >= 10 && t.intValue() < 20){
+            currenttemp.setTextColor(Color.BLUE);
+        }else if(t.intValue() >= 20 && t.intValue() < 30){
+            currenttemp.setTextColor(Color.GREEN);
+        }else if(t.intValue() >= 30 && t.intValue() < 34 ){
+            currenttemp.setTextColor(Color.YELLOW);
+        }else if(t.intValue() >= 34 && t.intValue() < 41){
+            currenttemp.setTextColor(Color.parseColor("#FFA500"));
+        }else{
+            currenttemp.setTextColor(Color.RED);
+        }
         currenttemp.setText(temp);
+    }
+
+    private void setUV(String UV) {
+        Double v = Double.valueOf(UV);
+        if(v.intValue() < 3){
+            uv.setTextColor(Color.GREEN);
+        }else if(v.intValue() >= 3 && v.intValue() < 6){
+            uv.setTextColor(Color.YELLOW);
+        }else if(v.intValue() > 5 && v.intValue() < 8){
+            uv.setTextColor(Color.parseColor("#FFA500")); //orange
+        }else if(v.intValue() >= 8 && v.intValue() < 11) {
+            uv.setTextColor(Color.RED);
+        }else {
+            uv.setTextColor(Color.parseColor("#A65BA6")); //violet
+        }
+        uv.setText(UV);
     }
 
     //Tao service class
@@ -135,14 +219,55 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         new AlarmUtils(this,alarmManager);
     }
 
+    private Bitmap img;
     @Override
     public void onViewCondition(Condition condition) {
+        final String link = "http://" + condition.getIcon().substring(2,condition.getIcon().length());
+        Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                InputStream in = null;
+                try {
+                    in = new URL(link).openStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                img = BitmapFactory.decodeStream(in);
+                status.setImageBitmap(img);
 
+            }
+        });
+    }
+
+    private Bitmap flag;
+    @Override
+    public void getCountryInfo(final Country countryInfo) {
+        this.countryInfo = countryInfo;
+        final String link = "https://www.countryflags.io/"+countryInfo.getAlpha2Code()+"/flat/64.png";
+        try {
+            flag = BitmapFactory.decodeStream(new URL(link).openConnection().getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        loading.setVisibility(View.INVISIBLE);
+        country.setImageBitmap(flag);
+        country.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                flag.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                CountryInfoFragment countryInfoFragment = CountryInfoFragment.newInstance(countryInfo,byteArray);
+                countryInfoFragment.show(getSupportFragmentManager(),"countryInfo");
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
-        registerReceiver(broadcastReceiver,new IntentFilter(Intents.TEMP));
+        creatService();
+        registerReceiver(broadcastReceiver,new IntentFilter(Intents.NOTI));
         super.onDestroy();
     }
 
@@ -151,4 +276,23 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         super.onStop();
     }
 
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("Thoát")
+                .setMessage("Bạn đồng thoát chương trình")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        creatService();
+                        exit();
+                    }
+                })
+                .setNegativeButton("Cancel",null);
+        builder.create().show();
+    }
+
+    public void exit(){
+        super.onBackPressed();
+    }
 }

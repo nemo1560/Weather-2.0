@@ -1,6 +1,8 @@
 package com.example.nemo1.weather21.entity;
 
-public class Condition {
+import java.io.Serializable;
+
+public class Condition implements Serializable {
 
     private String icon;
 

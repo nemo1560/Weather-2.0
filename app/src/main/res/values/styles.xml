@@ -8,4 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="ProcessBar" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@android:color/black</item>
+    </style>
+
 </resources>

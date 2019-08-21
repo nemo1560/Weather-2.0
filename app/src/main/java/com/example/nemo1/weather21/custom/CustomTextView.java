@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.widget.TextView;
 
 @SuppressLint("AppCompatCustomView")
@@ -27,7 +28,8 @@ public class CustomTextView extends TextView {
     public void setFont(){
         Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "digital-7.ttf");
         setTypeface(typeface,typeface.NORMAL);
-        setTextColor(getContext().getColor(android.R.color.holo_red_dark));
+        setTextColor(getContext().getColor(android.R.color.black));
+        setGravity(Gravity.CENTER);
         setPadding(5,20,5,5);
     }
 
