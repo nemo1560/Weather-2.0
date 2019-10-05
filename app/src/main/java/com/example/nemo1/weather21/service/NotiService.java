@@ -75,7 +75,7 @@ public class NotiService extends Service implements SendLocation, signal {
     public void onCreate() {
         super.onCreate();
         startThread();
-        Log.d("checkStatus","OK");
+        Log.d("CREATESERVICE","OK");
     }
 
     @Override
@@ -91,20 +91,22 @@ public class NotiService extends Service implements SendLocation, signal {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            coordinates = new SharedPreference(getBaseContext()).init().getString("location", "0");
-            getWeatherData(coordinates);
-            Message msg = new Message();
-            Bundle data = new Bundle();
-            try {
-                data.putString("newTemp", current.getTemp_c() /*"Kiểm tra nhiệt độ"*/);
-                msg.setData(data);
-                msg.arg1 = 1;
-                mHandler.sendMessage(msg);
-                Thread.sleep(60 * 60 * 1000);
-            } catch (InterruptedException e) {
-                e.toString();
+            while (true){
+                Log.d("WEATHERSERVICE","Kiểm tra nhiệt độ");
+                coordinates = new SharedPreference(getBaseContext()).init().getString("location", "0");
+                getWeatherData(coordinates);
+                Message msg = new Message();
+                Bundle data = new Bundle();
+                try {
+                    data.putString("newTemp", current.getTemp_c() /*"Kiểm tra nhiệt độ"*/);
+                    msg.setData(data);
+                    msg.arg1 = 1;
+                    mHandler.sendMessage(msg);
+                    Thread.sleep(60 * 60 * 1000);
+                } catch (InterruptedException e) {
+                    e.toString();
+                }
             }
-            runnable.run();
         }
     };
 
