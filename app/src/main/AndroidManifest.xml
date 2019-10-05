@@ -24,12 +24,20 @@
         <activity android:name=".MainActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".SecondActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.Second"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <service android:name=".service.NotiService" android:enabled="true"/>
         <service android:name=".service.WeatherService" android:enabled="true"/>
+        <service android:name=".service.JobSchedule" android:label="notifi" android:permission="android.permission.BIND_JOB_SERVICE"/>
     </application>
 
 </manifest>

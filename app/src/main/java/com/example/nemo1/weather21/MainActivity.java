@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -26,12 +27,14 @@ import android.widget.Toast;
 
 import com.example.nemo1.weather21.custom.AlarmUtils;
 import com.example.nemo1.weather21.custom.CustomTextView;
+import com.example.nemo1.weather21.custom.ScheduleUtils;
 import com.example.nemo1.weather21.entity.Condition;
 import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
 import com.example.nemo1.weather21.model.Intents;
 import com.example.nemo1.weather21.presenter.Presenter;
+import com.example.nemo1.weather21.service.NotiService;
 import com.example.nemo1.weather21.view.SendView;
 
 import java.io.ByteArrayOutputStream;
@@ -42,7 +45,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements SendView, View.OnClickListener {
     private CustomTextView cloud,uv,currenttemp,time;
-    private ImageView status,country;
+    private ImageView status,country,wall;
     ProgressBar loading;
     private Presenter presenter;
     private static String temp = "";
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction() == Intents.NOTI){
-                if(intent.getStringExtra("NOTI") != null){
+                if(intent.getStringExtra("NOTI") == "restart"){
                     creatService();
                 }
             }
@@ -71,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         status = findViewById(R.id.status);
         loading = findViewById(R.id.loading);
         time = findViewById(R.id.time);
+        wall = findViewById(R.id.wall);
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -137,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
     public void initEvent() {
         currenttemp.setOnClickListener(this);
         country.setOnClickListener(this);
+        cloud.setOnClickListener(this);
     }
 
     //run present for process getAPI
@@ -155,8 +160,9 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
            }else {
                notConnect();
            }
-        }if(v.getId() == country.getId()){
-            countryInfo.getCapital();
+        }if(v.getId() == cloud.getId()){
+//            countryInfo.getCapital();
+            startActivity(new Intent("android.intent.action.Second"));
         }
     }
 
@@ -183,17 +189,23 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
     private void setTemp(String temp) {
         Double t = Double.valueOf(temp);
         if(t.intValue() < 10){
-            currenttemp.setTextColor(Color.WHITE);
+            currenttemp.setTextColor(Color.GRAY);
+            wall.setImageResource(R.drawable.white);
         }else if(t.intValue() >= 10 && t.intValue() < 20){
             currenttemp.setTextColor(Color.BLUE);
+            wall.setImageResource(R.drawable.blue);
         }else if(t.intValue() >= 20 && t.intValue() < 30){
             currenttemp.setTextColor(Color.GREEN);
+            wall.setImageResource(R.drawable.green);
         }else if(t.intValue() >= 30 && t.intValue() < 34 ){
             currenttemp.setTextColor(Color.YELLOW);
+            wall.setImageResource(R.drawable.yellow);
         }else if(t.intValue() >= 34 && t.intValue() < 41){
             currenttemp.setTextColor(Color.parseColor("#FFA500"));
+            wall.setImageResource(R.drawable.orange);
         }else{
             currenttemp.setTextColor(Color.RED);
+            wall.setImageResource(R.drawable.red);
         }
         currenttemp.setText(temp);
     }
@@ -216,7 +228,10 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
 
     //Tao service class
     public void creatService(){
-        new AlarmUtils(this,alarmManager);
+        //Start jobSchedule để lặp lại service.
+//        ScheduleUtils.ScheduleUtils(getBaseContext());
+        Intent intent = new Intent(this,NotiService.class);
+        startService(intent);
     }
 
     private Bitmap img;

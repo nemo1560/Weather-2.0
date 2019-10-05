@@ -1,5 +1,6 @@
 package com.example.nemo1.weather21.service;
 
+import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressLint("NewApi")
 public class WeatherService extends IntentService {
     private String json;
     private Location location;
@@ -101,6 +103,7 @@ public class WeatherService extends IntentService {
                 condition.setCode(conditionObj.getString("code"));
 
                 getCountryData();
+
         }
         } catch (IOException | JSONException e) {
             e.printStackTrace();

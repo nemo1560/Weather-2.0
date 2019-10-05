@@ -3,45 +3,58 @@ package com.example.nemo1.weather21.service;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+
+import com.example.nemo1.weather21.MainActivity;
 import com.example.nemo1.weather21.R;
 import com.example.nemo1.weather21.entity.Condition;
-import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
-import com.example.nemo1.weather21.model.GetLocation;
 import com.example.nemo1.weather21.model.Intents;
 import com.example.nemo1.weather21.model.OkHttp;
 import com.example.nemo1.weather21.model.SendLocation;
 import com.example.nemo1.weather21.model.SharedPreference;
 import com.example.nemo1.weather21.model.URLs;
-import com.example.nemo1.weather21.presenter.Presenter;
-import com.example.nemo1.weather21.view.SendView;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
-public class NotiService extends Service implements SendLocation {
+public class NotiService extends Service implements SendLocation, signal {
     private String coordinates ="";
     private static String currentTemp = "";
     private final String CHANNEL_ID = "my_weather_01";
     private final String CHANNEL_NAME = "my_weather";
-    private int NOTIFICATION_ID = 1;
+    private final static int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
     private NotificationChannel notificationChannel;
     private Notification.Builder builder;
@@ -50,18 +63,24 @@ public class NotiService extends Service implements SendLocation {
     private Location location;
     private Current current;
     private Condition condition;
+    private signal signal;
+    private FirebaseDatabase database;
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        startThread();
+        Log.d("checkStatus","OK");
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        startThread();
-//        getData();
-        return START_STICKY;
     }
 
     private void startThread() {
@@ -72,22 +91,20 @@ public class NotiService extends Service implements SendLocation {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            while(true){
-                coordinates = new SharedPreference(getBaseContext()).init().getString("location","0");
-                getWeatherData(coordinates);
-                Message msg = new Message();
-                Bundle data = new Bundle();
-                try {
-//                    Log.d("serviceStatus",current.getTemp_c());
-                    data.putString("newTemp",current.getTemp_c());
-                    msg.setData(data);
-                    msg.arg1 = 1;
-                    mHandler.sendMessage(msg);
-                    Thread.sleep(60*60*1000);
-                } catch (InterruptedException e) {
-                    e.toString();
-                }
+            coordinates = new SharedPreference(getBaseContext()).init().getString("location", "0");
+            getWeatherData(coordinates);
+            Message msg = new Message();
+            Bundle data = new Bundle();
+            try {
+                data.putString("newTemp", current.getTemp_c() /*"Kiểm tra nhiệt độ"*/);
+                msg.setData(data);
+                msg.arg1 = 1;
+                mHandler.sendMessage(msg);
+                Thread.sleep(60 * 60 * 1000);
+            } catch (InterruptedException e) {
+                e.toString();
             }
+            runnable.run();
         }
     };
 
@@ -98,19 +115,20 @@ public class NotiService extends Service implements SendLocation {
             if(msg.arg1 == 1){
                 Bundle bundle = msg.getData();
                 String temp = bundle.getString("newTemp");
-                setNotification(temp);
-                send();
+//                sendFirebase(temp,NotiService.this);
+                String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+                setNotification(temp,currentTime);
             }
         }
     };
 
     public void send() {
         Intent intent = new Intent(Intents.NOTI);
-        intent.putExtra("NOTI",current.getTemp_c());
+        intent.putExtra("NOTI","restart");
         sendBroadcast(intent);
     }
 
-    public void setNotification(String temp){
+    public void setNotification(String temp, String currentTime){
         if(!temp.isEmpty()){
             notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             ////notification cho dong anroid 8.0
@@ -118,34 +136,53 @@ public class NotiService extends Service implements SendLocation {
                 notificationChannel = new NotificationChannel(CHANNEL_ID,CHANNEL_NAME,NotificationManager.IMPORTANCE_HIGH);
                 notificationChannel.enableLights(true);
                 notificationChannel.enableVibration(true);
-                notificationChannel.setLightColor(android.R.color.holo_red_dark);
+                notificationChannel.setLightColor(Color.GREEN);
                 notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
                 notificationManager.createNotificationChannel(notificationChannel);
 
                 builder = new Notification.Builder(this, CHANNEL_ID)
-                        .setContentTitle("Weather")
-                        .setContentText(temp)
+                        .setContentTitle("Thông tin thời tiết")
+                        .setContentText("Nhiệt độ: "+temp+", Áp suất: "+current.getPressure_mb())
                         .setSmallIcon(R.mipmap.weather_local)
                         .setAutoCancel(true)
                         .setChannelId(CHANNEL_ID)
+                        .setOngoing(false)
                         .setPriority(Notification.PRIORITY_HIGH);
-                notificationManager.notify(NOTIFICATION_ID,builder.build());
+
+                Intent notificationIntent = new Intent(getApplication(), MainActivity.class);
+                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent intent = PendingIntent.getActivity(getApplication(), 0, notificationIntent, 0);
+                builder.setContentIntent(intent);
+
                 Notification notification = builder.build();
-                startForeground(1,notification);
+
+                //bật startforcegound notification.
+//                startForeground(1,notification);
+
+                notificationManager.notify(NOTIFICATION_ID,notification);
+
             }
             else {
                 //notification cho dong anroid thap hon 8.0
                 cbuilder = new NotificationCompat.Builder(this);
-                cbuilder.setContentTitle("Weather")
-                        .setContentText(temp)
+                cbuilder.setContentTitle("Thông tin thời tiết")
+                        .setContentText("Nhiệt độ: "+temp+", Áp suất: "+current.getPressure_mb())
                         .setSmallIcon(R.mipmap.weather_local)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
+                        .setLights(Integer.parseInt("#46d3a0"), 500, 2000)
                         .setAutoCancel(true);
-                notificationManager.notify(NOTIFICATION_ID,cbuilder.build());
-                startForeground(2,new Notification());
+
+                Intent notificationIntent = new Intent(getApplication(), MainActivity.class);
+                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent intent = PendingIntent.getActivity(getApplication(), 0, notificationIntent, 0);
+                cbuilder.setContentIntent(intent);
+
+                Notification notification = cbuilder.build();
+                notificationManager.notify(NOTIFICATION_ID,notification);
             }
+            send();
         }
     }
 
@@ -198,16 +235,69 @@ public class NotiService extends Service implements SendLocation {
 //                condition.setText(conditionObj.getString("text"));
 //                condition.setIcon(conditionObj.getString("icon"));
 //                condition.setCode(conditionObj.getString("code"));
-
-                send();
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
     }
 
+    private boolean anonymous;
+    private void sendFirebase(String temp, signal signal) {
+        this.signal = signal;
+        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                FirebaseUser user = mAuth.getCurrentUser();
+                anonymous = user.isAnonymous();
+            }
+        });
+        if(anonymous){
+            signal.setValue(temp);
+        }
+    }
+
+    private void readFirebase(){
+        final DatabaseReference myRef = database.getReference("notifi");
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String temp = dataSnapshot.getValue(String.class);
+//                setNotification(temp, currentTime);
+//                myRef.setValue("");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    //restart service
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        send();
+        onCreate();
+//        ScheduleUtils.ScheduleUtils(getApplicationContext());
+        super.onTaskRemoved(rootIntent);
+    }
+
+
     @Override
     public void onSendLocation(String location) {
         coordinates = location;
     }
+
+    @Override
+    public void setValue(String temp) {
+        database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("notifi");
+        myRef.setValue(temp);
+        readFirebase();
+    }
+}
+
+interface signal{
+    void setValue(String temp);
 }

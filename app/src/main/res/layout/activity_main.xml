@@ -1,179 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/darker_gray"
-    android:orientation="vertical"
-    android:padding="10dp">
-
-    <FrameLayout
-        android:background="@drawable/border"
+    android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/wall"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".3"
-        android:padding="5dp">
-        <TextView
-            android:textSize="50dp"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="..WEATHER.."/>
-    </FrameLayout>
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:alpha="0.8"/>
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-        <LinearLayout
-            android:layout_marginTop="10dp"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight=".5"
-            android:orientation="horizontal">
+            android:layout_weight=".3"
+            android:background="@drawable/border"
+            android:elevation="5dp"
+            android:padding="5dp">
 
-            <LinearLayout
-                android:background="@drawable/border"
-                android:layout_marginRight="5dp"
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight=".4">
-                <com.example.nemo1.weather21.custom.CustomTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight=".7"
-                    android:text="C"
-                    android:textAlignment="center"
-                    android:textSize="100dp" />
-                <ImageView
-                    android:id="@+id/status"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight=".3" />
-            </LinearLayout>
+                android:gravity="center"
+                android:text="..WEATHER.."
+                android:textColor="@android:color/black"
+                android:textSize="50dp"
+                android:textStyle="bold" />
+        </FrameLayout>
 
-            <com.example.nemo1.weather21.custom.CustomTextView
-                android:id="@+id/temp"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight=".6"
-                android:background="@drawable/border"
-                android:textColor="@android:color/white"
-                android:textSize="100dp" />
-        </LinearLayout>
-
-        <ProgressBar
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:id="@+id/loading"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.05"
-            android:indeterminate="true"
-            android:layout_margin="5dp"
-            android:theme="@style/ProcessBar"
-            android:visibility="invisible" />
-    </LinearLayout>
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".7">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="vertical">
+
             <LinearLayout
+                android:elevation="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_marginTop="10dp"
+                android:layout_weight=".5"
+                android:orientation="horizontal">
+
                 <LinearLayout
-                    android:layout_marginBottom="10dp"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight=".4"
                     android:background="@drawable/border"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight=".6">
+                    android:orientation="vertical">
+
                     <com.example.nemo1.weather21.custom.CustomTextView
-                        android:text="Country"
-                        android:layout_height="match_parent"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight=".7"
+                        android:text="C"
                         android:textAlignment="center"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"/>
+                        android:textSize="100dp" />
 
                     <ImageView
-                        android:id="@+id/country"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:textAlignment="center"
-                        android:textSize="20dp" />
+                        android:id="@+id/status"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight=".3" />
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_marginBottom="10dp"
+
+                <com.example.nemo1.weather21.custom.CustomTextView
+                    android:id="@+id/temp"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".6"
                     android:background="@drawable/border"
+                    android:textColor="@android:color/white"
+                    android:textSize="100dp" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="0.05"
+                android:indeterminate="true"
+                android:theme="@style/ProcessBar"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".7">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight=".6">
-                    <com.example.nemo1.weather21.custom.CustomTextView
-                        android:text="Time"
-                        android:layout_height="match_parent"
-                        android:textAlignment="center"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"/>
-                    <com.example.nemo1.weather21.custom.CustomTextView
-                        android:id="@+id/time"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:textAlignment="center"
-                        android:textSize="20dp" />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/border"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight=".6">
-                    <com.example.nemo1.weather21.custom.CustomTextView
-                        android:text="Cloud"
-                        android:layout_height="match_parent"
-                        android:layout_width="0dp"
-                        android:textAlignment="center"
-                        android:layout_weight="1"/>
-                    <com.example.nemo1.weather21.custom.CustomTextView
-                        android:id="@+id/cloud"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textAlignment="center"
-                        android:layout_height="match_parent"
-                        android:textSize="20dp"  />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_marginBottom="5dp"
-                    android:background="@drawable/border"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight=".6">
-                    <com.example.nemo1.weather21.custom.CustomTextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:text="UV"
-                        android:textAlignment="center" />
-                    <com.example.nemo1.weather21.custom.CustomTextView
-                        android:id="@+id/uv"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textAlignment="center"
-                        android:textSize="20dp"
-                        android:layout_height="match_parent" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight=".6"
+                        android:background="@drawable/border"
+                        android:elevation="5dp">
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="Country"
+                            android:textAlignment="center" />
+
+                        <ImageView
+                            android:id="@+id/country"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:textSize="20dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight=".6"
+                        android:background="@drawable/border"
+                        android:elevation="5dp">
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="Time"
+                            android:textAlignment="center" />
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:id="@+id/time"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:textSize="20dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight=".6"
+                        android:background="@drawable/border"
+                        android:elevation="5dp">
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="Cloud"
+                            android:textAlignment="center" />
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:id="@+id/cloud"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:textSize="20dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_weight=".6"
+                        android:background="@drawable/border"
+                        android:elevation="5dp">
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="UV"
+                            android:textAlignment="center" />
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:id="@+id/uv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:textSize="20dp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </FrameLayout>
-</LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>
