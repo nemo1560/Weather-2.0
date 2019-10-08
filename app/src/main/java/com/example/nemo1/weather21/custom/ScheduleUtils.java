@@ -13,13 +13,14 @@ public class ScheduleUtils {
     public static void ScheduleUtils(Context context) {
         ComponentName componentName = new ComponentName(context, JobSchedule.class);
         JobInfo.Builder job = new JobInfo.Builder(0,componentName);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            job.setMinimumLatency(60*60*1000);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+            job.setMinimumLatency(10*60*1000);
+            job.setOverrideDeadline(10*60*1000);
         }else {
-            job.setPeriodic(60*60*1000);
+            job.setPeriodic(10*60*1000);
         }
         JobScheduler schedule = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             schedule = context.getSystemService(JobScheduler.class);
         }
         schedule.schedule(job.build());

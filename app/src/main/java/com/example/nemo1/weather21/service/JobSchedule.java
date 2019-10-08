@@ -11,7 +11,7 @@ public class JobSchedule extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         Intent intent = new Intent(getApplicationContext(), NotiService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getApplicationContext().startForegroundService(intent);
         }else {
             getApplicationContext().startService(intent);

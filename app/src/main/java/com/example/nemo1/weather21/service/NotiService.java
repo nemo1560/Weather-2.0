@@ -20,6 +20,7 @@ import android.util.Log;
 
 import com.example.nemo1.weather21.MainActivity;
 import com.example.nemo1.weather21.R;
+import com.example.nemo1.weather21.custom.ScheduleUtils;
 import com.example.nemo1.weather21.entity.Condition;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
@@ -75,7 +76,7 @@ public class NotiService extends Service implements SendLocation, signal {
     public void onCreate() {
         super.onCreate();
         startThread();
-        Log.d("CREATESERVICE","OK");
+        Log.d("checkStatus","OK");
     }
 
     @Override
@@ -91,13 +92,13 @@ public class NotiService extends Service implements SendLocation, signal {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            while (true){
-                Log.d("WEATHERSERVICE","Kiểm tra nhiệt độ");
+            while(true){
                 coordinates = new SharedPreference(getBaseContext()).init().getString("location", "0");
                 getWeatherData(coordinates);
                 Message msg = new Message();
                 Bundle data = new Bundle();
                 try {
+                    Log.d("WEATHER","@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                     data.putString("newTemp", current.getTemp_c() /*"Kiểm tra nhiệt độ"*/);
                     msg.setData(data);
                     msg.arg1 = 1;
@@ -173,7 +174,7 @@ public class NotiService extends Service implements SendLocation, signal {
                         .setSmallIcon(R.mipmap.weather_local)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
-                        .setLights(Integer.parseInt("#46d3a0"), 500, 2000)
+                        .setLights(Color.parseColor("#46d3a0"), 500, 2000)
                         .setAutoCancel(true);
 
                 Intent notificationIntent = new Intent(getApplication(), MainActivity.class);
@@ -184,7 +185,6 @@ public class NotiService extends Service implements SendLocation, signal {
                 Notification notification = cbuilder.build();
                 notificationManager.notify(NOTIFICATION_ID,notification);
             }
-            send();
         }
     }
 
@@ -258,7 +258,6 @@ public class NotiService extends Service implements SendLocation, signal {
             signal.setValue(temp);
         }
     }
-
     private void readFirebase(){
         final DatabaseReference myRef = database.getReference("notifi");
         myRef.addValueEventListener(new ValueEventListener() {
@@ -279,12 +278,26 @@ public class NotiService extends Service implements SendLocation, signal {
     //restart service
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        send();
+        super.onTaskRemoved(rootIntent);
+        Log.d("STOP","00000000000000000");
         onCreate();
-//        ScheduleUtils.ScheduleUtils(getApplicationContext());
+        ScheduleUtils.ScheduleUtils(getApplicationContext());
         super.onTaskRemoved(rootIntent);
     }
 
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        Log.d("STOP","00000000000000000");
+        onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("STOP","00000000000000000");
+        onCreate();
+    }
 
     @Override
     public void onSendLocation(String location) {
@@ -296,7 +309,7 @@ public class NotiService extends Service implements SendLocation, signal {
         database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("notifi");
         myRef.setValue(temp);
-        readFirebase();
+//        readFirebase();
     }
 }
 

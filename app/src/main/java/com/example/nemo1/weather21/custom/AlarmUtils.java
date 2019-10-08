@@ -24,8 +24,8 @@ public class AlarmUtils {
 
     private void startAlarm() {
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, intentService, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),pendingIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),pendingIntent);
             Log.d("currentTime",System.currentTimeMillis()+"");
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent);

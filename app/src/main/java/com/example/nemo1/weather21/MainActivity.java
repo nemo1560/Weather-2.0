@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.icu.util.VersionInfo;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -229,9 +230,12 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
     //Tao service class
     public void creatService(){
         //Start jobSchedule để lặp lại service.
-//        ScheduleUtils.ScheduleUtils(getBaseContext());
-        Intent intent = new Intent(this,NotiService.class);
-        startService(intent);
+        if(Build.VERSION.SDK_INT ==Build.VERSION_CODES.P){
+            ScheduleUtils.ScheduleUtils(getBaseContext());
+        }else {
+            Intent intent = new Intent(this,NotiService.class);
+            startService(intent);
+        }
     }
 
     private Bitmap img;
@@ -277,18 +281,6 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
                 countryInfoFragment.show(getSupportFragmentManager(),"countryInfo");
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        creatService();
-        registerReceiver(broadcastReceiver,new IntentFilter(Intents.NOTI));
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 
     @Override
