@@ -15,6 +15,7 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.nemo1.weather21.custom.CustomTextView;
 import com.example.nemo1.weather21.entity.Country;
@@ -72,7 +73,8 @@ public class CountryInfoFragment extends DialogFragment {
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(),MapsActivity.class);
+                Toast.makeText(getActivity(),"OK",Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(),MapsActivity.class);
                 startActivity(intent);
             }
         });
