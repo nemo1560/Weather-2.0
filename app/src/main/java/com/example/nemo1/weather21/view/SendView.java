@@ -12,5 +12,6 @@ public interface SendView {
     public void onViewCurrent(Current current);
     public void onViewCondition(Condition condition);
     public void getCountryInfo(Country countryInfo);
+    public void getError(String error);
 
 }

@@ -42,12 +42,16 @@ public class WeatherService extends IntentService {
         getWeatherData(intent);
     }
 
-    private void send(){
+    private void send(String value){
         Intent intent = new Intent(Intents.TEMP);
-        intent.putExtra("location",location);
-        intent.putExtra("current",current);
-        intent.putExtra("condition",condition);
-        intent.putExtra("country",country);
+        if(value != null){
+            intent.putExtra("value",value);
+        }else {
+            intent.putExtra("location",location);
+            intent.putExtra("current",current);
+            intent.putExtra("condition",condition);
+            intent.putExtra("country",country);
+        }
         sendBroadcast(intent);
     }
 
@@ -107,6 +111,7 @@ public class WeatherService extends IntentService {
         }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
+            send(e.toString());
         }
     }
 
@@ -155,6 +160,6 @@ public class WeatherService extends IntentService {
         } catch (IOException | JSONException e) {
             Log.d("ErrorAPICountry",e.toString());
         }
-        send();
+        send(null);
     }
 }

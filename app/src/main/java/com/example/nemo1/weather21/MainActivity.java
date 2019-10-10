@@ -25,6 +25,7 @@ import android.widget.ProgressBar;
 
 import com.example.nemo1.weather21.custom.CustomTextView;
 import com.example.nemo1.weather21.custom.ScheduleUtils;
+import com.example.nemo1.weather21.custom.Utility;
 import com.example.nemo1.weather21.entity.Condition;
 import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
@@ -277,6 +278,12 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
                 countryInfoFragment.show(getSupportFragmentManager(),"countryInfo");
             }
         });
+    }
+
+    @Override
+    public void getError(String error) {
+        Utility.Alert(this,"Lỗi",error).setNegativeButton("Cancel",null).create().show();
+        loading.setVisibility(View.INVISIBLE);
     }
 
     @Override

@@ -31,14 +31,20 @@ public class Presenter implements SendLocation {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction() == Intents.TEMP){
-                location = (Location) intent.getSerializableExtra("location");
-                condition = (Condition) intent.getSerializableExtra("condition");
-                current = (Current) intent.getSerializableExtra("current");
-                country = (Country) intent.getSerializableExtra("country");
-                sendView.getCountryInfo(country);
-                sendView.onViewCondition(condition);
-                sendView.onViewCurrent(current);
-                sendView.onViewLocation(location);
+                if(intent.getStringExtra("value") == null){
+                    location = (Location) intent.getSerializableExtra("location");
+                    condition = (Condition) intent.getSerializableExtra("condition");
+                    current = (Current) intent.getSerializableExtra("current");
+                    country = (Country) intent.getSerializableExtra("country");
+                    sendView.getCountryInfo(country);
+                    sendView.onViewCondition(condition);
+                    sendView.onViewCurrent(current);
+                    sendView.onViewLocation(location);
+                }
+                else {
+                    String error = intent.getStringExtra("value");
+                    sendView.getError(error);
+                }
             }
         }
     };
