@@ -1,17 +1,17 @@
 package com.example.nemo1.weather21;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -69,6 +69,13 @@ public class CountryInfoFragment extends DialogFragment {
         logo.setImageBitmap(flag);
         logo.startAnimation(AnimationUtils.loadAnimation(getActivity(),R.anim.alpha_aim));
         logo.setVisibility(View.VISIBLE);
+        logo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(),MapsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

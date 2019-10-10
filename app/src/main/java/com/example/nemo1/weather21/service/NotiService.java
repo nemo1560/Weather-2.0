@@ -7,14 +7,19 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
 
@@ -31,14 +36,6 @@ import com.example.nemo1.weather21.model.SharedPreference;
 import com.example.nemo1.weather21.model.URLs;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,7 +62,6 @@ public class NotiService extends Service implements SendLocation, signal {
     private Current current;
     private Condition condition;
     private signal signal;
-    private FirebaseDatabase database;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -145,9 +141,10 @@ public class NotiService extends Service implements SendLocation, signal {
                 notificationManager.createNotificationChannel(notificationChannel);
 
                 builder = new Notification.Builder(this, CHANNEL_ID)
-                        .setContentTitle("Thông tin thời tiết")
-                        .setContentText("Nhiệt độ: "+temp+", Áp suất: "+current.getPressure_mb())
-                        .setSmallIcon(R.mipmap.weather_local)
+                        .setContentTitle("Nhiệt độ: "+temp)
+                        .setContentText("Áp suất: "+current.getPressure_mb())
+                        .setSmallIcon(Icon.createWithBitmap(textAsBitmap(temp, (float) 200,Color.RED)))
+                        .setLargeIcon(Icon.createWithBitmap(textAsBitmap(temp, (float) 100,Color.RED)))
                         .setAutoCancel(true)
                         .setChannelId(CHANNEL_ID)
                         .setOngoing(false)
@@ -169,9 +166,10 @@ public class NotiService extends Service implements SendLocation, signal {
             else {
                 //notification cho dong anroid thap hon 8.0
                 cbuilder = new NotificationCompat.Builder(this);
-                cbuilder.setContentTitle("Thông tin thời tiết")
-                        .setContentText("Nhiệt độ: "+temp+", Áp suất: "+current.getPressure_mb())
+                cbuilder.setContentTitle("Nhiệt độ: "+temp)
+                        .setContentText("Áp suất: "+current.getPressure_mb())
                         .setSmallIcon(R.mipmap.weather_local)
+                        .setLargeIcon(textAsBitmap(temp, (float) 100,Color.RED))
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
                         .setLights(Color.parseColor("#46d3a0"), 500, 2000)
@@ -186,6 +184,20 @@ public class NotiService extends Service implements SendLocation, signal {
                 notificationManager.notify(NOTIFICATION_ID,notification);
             }
         }
+    }
+
+    public Bitmap textAsBitmap(String text, float textSize, int textColor) {
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setTextSize(textSize);
+        paint.setColor(textColor);
+        paint.setTextAlign(Paint.Align.LEFT);
+        float baseline = -paint.ascent(); // ascent() is negative
+        int width = (int) (paint.measureText(text) + 0.5f); // round
+        int height = (int) (baseline + paint.descent() + 0.5f);
+        Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(image);
+        canvas.drawText(text, 0, baseline, paint);
+        return image;
     }
 
     protected void getWeatherData(String coordinates) {
@@ -243,39 +255,40 @@ public class NotiService extends Service implements SendLocation, signal {
         }
     }
 
-    private boolean anonymous;
-    private void sendFirebase(String temp, signal signal) {
-        this.signal = signal;
-        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                FirebaseUser user = mAuth.getCurrentUser();
-                anonymous = user.isAnonymous();
-            }
-        });
-        if(anonymous){
-            signal.setValue(temp);
-        }
-    }
-    private void readFirebase(){
-        final DatabaseReference myRef = database.getReference("notifi");
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String temp = dataSnapshot.getValue(String.class);
-//                setNotification(temp, currentTime);
-//                myRef.setValue("");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
+//    private boolean anonymous;
+//    private void sendFirebase(String temp, signal signal) {
+//        this.signal = signal;
+//        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+//        mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<AuthResult> task) {
+//                FirebaseUser user = mAuth.getCurrentUser();
+//                anonymous = user.isAnonymous();
+//            }
+//        });
+//        if(anonymous){
+//            signal.setValue(temp);
+//        }
+//    }
+//    private void readFirebase(){
+//        final DatabaseReference myRef = database.getReference("notifi");
+//        myRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                String temp = dataSnapshot.getValue(String.class);
+////                setNotification(temp, currentTime);
+////                myRef.setValue("");
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
 
     //restart service
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
@@ -306,9 +319,9 @@ public class NotiService extends Service implements SendLocation, signal {
 
     @Override
     public void setValue(String temp) {
-        database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("notifi");
-        myRef.setValue(temp);
+//        database = FirebaseDatabase.getInstance();
+//        DatabaseReference myRef = database.getReference("notifi");
+//        myRef.setValue(temp);
 //        readFirebase();
     }
 }

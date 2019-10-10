@@ -7,7 +7,7 @@
     android:background="@android:color/darker_gray"
     android:orientation="vertical">
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_marginBottom="20dp"
         android:layout_width="match_parent"
         android:layout_height="150dp">
@@ -32,7 +32,7 @@
             android:layout_height="100dp"
             app:layout_anchor="@id/head"
             app:layout_anchorGravity="top|center"/>
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <LinearLayout
         android:layout_margin="20dp"

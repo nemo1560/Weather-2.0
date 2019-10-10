@@ -1,6 +1,6 @@
 package com.example.nemo1.weather21.custom;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nemo1.weather21.entity.Country;
 
@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListCountry {
-    private Activity activity;
+    private AppCompatActivity activity;
 
-    public ListCountry(Activity activity) {
+    public ListCountry(AppCompatActivity activity) {
         this.activity = activity;
     }
 
