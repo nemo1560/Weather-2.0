@@ -3,10 +3,7 @@ package com.example.nemo1.weather21.model;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
 
-import com.example.nemo1.weather21.entity.Condition;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
 import com.example.nemo1.weather21.entity.Weather;
@@ -33,8 +30,6 @@ public class API {
             public void onResponse(Call<Weather> call, Response<Weather> response) {
                 Current current = response.body().getCurrent();
                 Location location = response.body().getLocation();
-                Condition condition = response.body().getCurrent().getCondition();
-                sendPresenter.getConditionsuccessfully(condition);
                 sendPresenter.getCurrentsuccessfully(current);
                 sendPresenter.getLocationsuccessfully(location);
             }

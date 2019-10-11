@@ -56,10 +56,10 @@ public class WeatherInfoFragment extends DialogFragment {
     }
 
     private void initLayout() {
-        feel_c.setText(current.getFeelslike_c());
-        wind.setText(current.getWind_kph());
-        pressure.setText(current.getPressure_mb());
-        vis_km.setText(current.getVis_km());
+        feel_c.setText(current.getFeelslike());
+        wind.setText(current.getWind_speed());
+        pressure.setText(current.getPressure());
+        vis_km.setText(current.getVisibility());
         logo.startAnimation(AnimationUtils.loadAnimation(getActivity(),R.anim.alpha_aim));
         logo.setVisibility(View.VISIBLE);
     }

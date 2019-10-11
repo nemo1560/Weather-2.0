@@ -17,7 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import androidx.annotation.NonNull;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
@@ -26,7 +26,6 @@ import android.util.Log;
 import com.example.nemo1.weather21.MainActivity;
 import com.example.nemo1.weather21.R;
 import com.example.nemo1.weather21.custom.ScheduleUtils;
-import com.example.nemo1.weather21.entity.Condition;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
 import com.example.nemo1.weather21.model.Intents;
@@ -34,8 +33,6 @@ import com.example.nemo1.weather21.model.OkHttp;
 import com.example.nemo1.weather21.model.SendLocation;
 import com.example.nemo1.weather21.model.SharedPreference;
 import com.example.nemo1.weather21.model.URLs;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +44,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class NotiService extends Service implements SendLocation, signal {
+public class NotiService extends Service implements SendLocation {
     private String coordinates ="";
     private static String currentTemp = "";
     private final String CHANNEL_ID = "my_weather_01";
@@ -60,8 +57,6 @@ public class NotiService extends Service implements SendLocation, signal {
     private Thread thread;
     private Location location;
     private Current current;
-    private Condition condition;
-    private signal signal;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -95,7 +90,7 @@ public class NotiService extends Service implements SendLocation, signal {
                 Bundle data = new Bundle();
                 try {
                     Log.d("WEATHER","@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                    data.putString("newTemp", current.getTemp_c() /*"Kiểm tra nhiệt độ"*/);
+                    data.putString("newTemp", current.getTemperature() /*"Kiểm tra nhiệt độ"*/);
                     msg.setData(data);
                     msg.arg1 = 1;
                     mHandler.sendMessage(msg);
@@ -142,7 +137,7 @@ public class NotiService extends Service implements SendLocation, signal {
 
                 builder = new Notification.Builder(this, CHANNEL_ID)
                         .setContentTitle("Nhiệt độ: "+temp)
-                        .setContentText("Áp suất: "+current.getPressure_mb())
+                        .setContentText("Áp suất: "+current.getPressure())
                         .setSmallIcon(Icon.createWithBitmap(textAsBitmap(temp, (float) 200,Color.RED)))
                         .setLargeIcon(Icon.createWithBitmap(textAsBitmap(temp, (float) 100,Color.RED)))
                         .setAutoCancel(true)
@@ -167,7 +162,7 @@ public class NotiService extends Service implements SendLocation, signal {
                 //notification cho dong anroid thap hon 8.0
                 cbuilder = new NotificationCompat.Builder(this);
                 cbuilder.setContentTitle("Nhiệt độ: "+temp)
-                        .setContentText("Áp suất: "+current.getPressure_mb())
+                        .setContentText("Áp suất: "+current.getPressure())
                         .setSmallIcon(R.mipmap.weather_local)
                         .setLargeIcon(textAsBitmap(temp, (float) 100,Color.RED))
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -203,11 +198,10 @@ public class NotiService extends Service implements SendLocation, signal {
     protected void getWeatherData(String coordinates) {
         location = new Location();
         current = new Current();
-        condition = new Condition();
-        String key = "a9919d781737410a90e72432180311";
+        String key = "ae17c23c4fa107d50a4a73373c2517ff";
         Map<String, String> paramaters = new HashMap<String, String>();
-        paramaters.put("key",key);
-        paramaters.put("q",coordinates);
+        paramaters.put("access_key",key);
+        paramaters.put("query",coordinates);
         try {
             String json = OkHttp.getOKHttp(URLs.URLWEATHER,paramaters);
             if(json != null && json.length() > 0){
@@ -224,26 +218,19 @@ public class NotiService extends Service implements SendLocation, signal {
 //                location.setLocaltime(locationObj.getString("localtime"));
 
                 JSONObject currentObj = jsonObject.getJSONObject("current");
-                current.setLast_updated_epoch(currentObj.getString("last_updated_epoch"));
-                current.setLast_updated(currentObj.getString("last_updated"));
-                current.setTemp_c(currentObj.getString("temp_c"));
-                current.setTemp_f(currentObj.getString("temp_f"));
+                current.setTemperature(currentObj.getString("temperature"));
                 current.setIs_day(currentObj.getString("is_day"));
-                current.setWind_mph(currentObj.getString("wind_mph"));
-                current.setWind_kph(currentObj.getString("wind_kph"));
+                current.setWind_speed(currentObj.getString("wind_speed"));
                 current.setWind_degree(currentObj.getString("wind_degree"));
                 current.setWind_dir(currentObj.getString("wind_dir"));
-                current.setPressure_mb(currentObj.getString("pressure_mb"));
-                current.setPressure_in(currentObj.getString("pressure_in"));
-                current.setPrecip_mm(currentObj.getString("precip_mm"));
-                current.setPrecip_in(currentObj.getString("precip_in"));
+                current.setPressure(currentObj.getString("pressure"));
                 current.setHumidity(currentObj.getString("humidity"));
-                current.setCloud(currentObj.getString("cloud"));
-                current.setFeelslike_c(currentObj.getString("feelslike_c"));
-                current.setFeelslike_f(currentObj.getString("feelslike_f"));
-                current.setVis_km(currentObj.getString("vis_km"));
-                current.setVis_miles(currentObj.getString("vis_miles"));
-                current.setUv(currentObj.getString("uv"));
+                current.setCloudcover(currentObj.getString("cloudcover"));
+                current.setUv_index(currentObj.getString("uv_index"));
+                current.setFeelslike(currentObj.getString("feelslike"));
+                current.setVisibility(currentObj.getString("visibility"));
+                current.setWeather_icons(currentObj.getJSONArray("weather_icons").getString(0));
+                current.setWeather_descriptions(currentObj.getJSONArray("weather_descriptions").getString(0));
 
 //                JSONObject conditionObj = currentObj.getJSONObject("condition");
 //                condition.setText(conditionObj.getString("text"));
@@ -317,15 +304,5 @@ public class NotiService extends Service implements SendLocation, signal {
         coordinates = location;
     }
 
-    @Override
-    public void setValue(String temp) {
-//        database = FirebaseDatabase.getInstance();
-//        DatabaseReference myRef = database.getReference("notifi");
-//        myRef.setValue(temp);
-//        readFirebase();
-    }
 }
 
-interface signal{
-    void setValue(String temp);
-}

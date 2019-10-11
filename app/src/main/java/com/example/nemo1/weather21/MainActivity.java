@@ -26,7 +26,6 @@ import android.widget.ProgressBar;
 import com.example.nemo1.weather21.custom.CustomTextView;
 import com.example.nemo1.weather21.custom.ScheduleUtils;
 import com.example.nemo1.weather21.custom.Utility;
-import com.example.nemo1.weather21.entity.Condition;
 import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
@@ -169,17 +168,35 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         time.setText(location.getLocaltime());
     }
 
+    private Bitmap img;
     @Override
     public void onViewCurrent(final Current current) {
-        cloud.setText(current.getCloud());
-        setUV(current.getUv());
-        temp = current.getTemp_c();
+        cloud.setText(current.getCloudcover());
+        setUV(current.getUv_index());
+        temp = current.getTemperature();
         setTemp(temp);
         status.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 WeatherInfoFragment weatherInfoFragment = WeatherInfoFragment.newInstance(current);
                 weatherInfoFragment.show(getSupportFragmentManager(),"weatherInfo");
+            }
+        });
+
+        final String link = current.getWeather_icons();
+        Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                InputStream in = null;
+                try {
+                    in = new URL(link).openStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                img = BitmapFactory.decodeStream(in);
+                status.setImageBitmap(img);
+
             }
         });
     }
@@ -233,27 +250,6 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
             Intent intent = new Intent(this,NotiService.class);
             startService(intent);
         }
-    }
-
-    private Bitmap img;
-    @Override
-    public void onViewCondition(Condition condition) {
-        final String link = "http://" + condition.getIcon().substring(2,condition.getIcon().length());
-        Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                InputStream in = null;
-                try {
-                    in = new URL(link).openStream();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                img = BitmapFactory.decodeStream(in);
-                status.setImageBitmap(img);
-
-            }
-        });
     }
 
     private Bitmap flag;

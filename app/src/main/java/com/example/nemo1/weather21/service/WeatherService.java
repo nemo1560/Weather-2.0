@@ -2,12 +2,9 @@ package com.example.nemo1.weather21.service;
 
 import android.annotation.SuppressLint;
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Intent;
-import android.os.IBinder;
 import android.util.Log;
 
-import com.example.nemo1.weather21.entity.Condition;
 import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
@@ -29,7 +26,6 @@ public class WeatherService extends IntentService {
     private String json;
     private Location location;
     private Current current;
-    private Condition condition;
     private Country country;
 
 
@@ -49,7 +45,6 @@ public class WeatherService extends IntentService {
         }else {
             intent.putExtra("location",location);
             intent.putExtra("current",current);
-            intent.putExtra("condition",condition);
             intent.putExtra("country",country);
         }
         sendBroadcast(intent);
@@ -58,12 +53,11 @@ public class WeatherService extends IntentService {
     protected void getWeatherData(Intent intent) {
         location = new Location();
         current = new Current();
-        condition = new Condition();
         String coordinates = new SharedPreference(getApplicationContext()).init().getString("location","0");
-        String key = "a9919d781737410a90e72432180311";
+        String key = "ae17c23c4fa107d50a4a73373c2517ff";
         Map<String, String> paramaters = new HashMap<String, String>();
-        paramaters.put("key",key);
-        paramaters.put("q",coordinates);
+        paramaters.put("access_key",key);
+        paramaters.put("query",coordinates);
         try {
             json = OkHttp.getOKHttp(URLs.URLWEATHER,paramaters);
             if(json != null && json.length() > 0){
@@ -75,37 +69,24 @@ public class WeatherService extends IntentService {
                 location.setCountry(locationObj.getString("country"));
                 location.setLat(locationObj.getString("lat"));
                 location.setLon(locationObj.getString("lon"));
-                location.setTz_id(locationObj.getString("tz_id"));
+                location.setTz_id(locationObj.getString("timezone_id"));
                 location.setLocaltime_epoch(locationObj.getString("localtime_epoch"));
                 location.setLocaltime(locationObj.getString("localtime"));
 
                 JSONObject currentObj = jsonObject.getJSONObject("current");
-                current.setLast_updated_epoch(currentObj.getString("last_updated_epoch"));
-                current.setLast_updated(currentObj.getString("last_updated"));
-                current.setTemp_c(currentObj.getString("temp_c"));
-                current.setTemp_f(currentObj.getString("temp_f"));
+                current.setTemperature(currentObj.getString("temperature"));
                 current.setIs_day(currentObj.getString("is_day"));
-                current.setWind_mph(currentObj.getString("wind_mph"));
-                current.setWind_kph(currentObj.getString("wind_kph"));
+                current.setWind_speed(currentObj.getString("wind_speed"));
                 current.setWind_degree(currentObj.getString("wind_degree"));
                 current.setWind_dir(currentObj.getString("wind_dir"));
-                current.setPressure_mb(currentObj.getString("pressure_mb"));
-                current.setPressure_in(currentObj.getString("pressure_in"));
-                current.setPrecip_mm(currentObj.getString("precip_mm"));
-                current.setPrecip_in(currentObj.getString("precip_in"));
+                current.setPressure(currentObj.getString("pressure"));
                 current.setHumidity(currentObj.getString("humidity"));
-                current.setCloud(currentObj.getString("cloud"));
-                current.setFeelslike_c(currentObj.getString("feelslike_c"));
-                current.setFeelslike_f(currentObj.getString("feelslike_f"));
-                current.setVis_km(currentObj.getString("vis_km"));
-                current.setVis_miles(currentObj.getString("vis_miles"));
-                current.setUv(currentObj.getString("uv"));
-
-                JSONObject conditionObj = currentObj.getJSONObject("condition");
-                condition.setText(conditionObj.getString("text"));
-                condition.setIcon(conditionObj.getString("icon"));
-                condition.setCode(conditionObj.getString("code"));
-
+                current.setCloudcover(currentObj.getString("cloudcover"));
+                current.setUv_index(currentObj.getString("uv_index"));
+                current.setFeelslike(currentObj.getString("feelslike"));
+                current.setVisibility(currentObj.getString("visibility"));
+                current.setWeather_icons(currentObj.getJSONArray("weather_icons").getString(0));
+                current.setWeather_descriptions(currentObj.getJSONArray("weather_descriptions").getString(0));
                 getCountryData();
 
         }

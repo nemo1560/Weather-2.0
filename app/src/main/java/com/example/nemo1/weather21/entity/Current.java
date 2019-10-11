@@ -1,85 +1,67 @@
 package com.example.nemo1.weather21.entity;
 
+import org.json.JSONArray;
+
 import java.io.Serializable;
 
 public class Current implements Serializable {
 
-    private String temp_f;
+    private String weather_icons;
 
-    private Condition condition;
+    private String weather_descriptions;
 
-    private String temp_c;
+    private String temperature;
 
-    private String wind_degree;
+    private String wind_speed;
 
     private String wind_dir;
 
-    private String wind_kph;
+    private String wind_degree;
 
     private String is_day;
 
-    private String pressure_in;
+    private String pressure;
 
     private String humidity;
 
-    private String uv;
+    private String uv_index;
 
-    private String vis_km;
+    private String cloudcover;
 
-    private String precip_mm;
+    private String feelslike;
 
-    private String wind_mph;
-
-    private String pressure_mb;
-
-    private String feelslike_f;
-
-    private String cloud;
-
-    private String last_updated_epoch;
-
-    private String feelslike_c;
-
-    private String last_updated;
-
-    private String precip_in;
-
-    private String vis_miles;
+    private String visibility;
 
     public Current() {
 
     }
 
-    public String getTemp_f() {
-        return temp_f;
+    public String getWeather_icons() {
+        return weather_icons;
     }
 
-    public void setTemp_f(String temp_f) {
-        this.temp_f = temp_f;
+    public String getWeather_descriptions() {
+        return weather_descriptions;
     }
 
-    public Condition getCondition() {
-        return condition;
+    public void setWeather_descriptions(String weather_descriptions) {
+        this.weather_descriptions = weather_descriptions;
     }
 
-    public void setCondition(Condition condition) {
-        this.condition = condition;
+    public String getTemperature() {
+        return temperature;
     }
 
-    public String getTemp_c() {
-        return temp_c;
+    public void setTemperature(String temperature) {
+        this.temperature = temperature;
     }
 
-    public void setTemp_c(String temp_c) {
-        this.temp_c = temp_c;
+    public String getWind_speed() {
+        return wind_speed;
     }
 
-    public String getWind_degree() {
-        return wind_degree;
-    }
-
-    public void setWind_degree(String wind_degree) {
-        this.wind_degree = wind_degree;
+    public void setWind_speed(String wind_speed) {
+        this.wind_speed = wind_speed;
     }
 
     public String getWind_dir() {
@@ -90,12 +72,12 @@ public class Current implements Serializable {
         this.wind_dir = wind_dir;
     }
 
-    public String getWind_kph() {
-        return wind_kph;
+    public String getWind_degree() {
+        return wind_degree;
     }
 
-    public void setWind_kph(String wind_kph) {
-        this.wind_kph = wind_kph;
+    public void setWind_degree(String wind_degree) {
+        this.wind_degree = wind_degree;
     }
 
     public String getIs_day() {
@@ -106,12 +88,12 @@ public class Current implements Serializable {
         this.is_day = is_day;
     }
 
-    public String getPressure_in() {
-        return pressure_in;
+    public String getPressure() {
+        return pressure;
     }
 
-    public void setPressure_in(String pressure_in) {
-        this.pressure_in = pressure_in;
+    public void setPressure(String pressure) {
+        this.pressure = pressure;
     }
 
     public String getHumidity() {
@@ -122,99 +104,39 @@ public class Current implements Serializable {
         this.humidity = humidity;
     }
 
-    public String getUv() {
-        return uv;
+    public String getUv_index() {
+        return uv_index;
     }
 
-    public void setUv(String uv) {
-        this.uv = uv;
+    public void setUv_index(String uv_index) {
+        this.uv_index = uv_index;
     }
 
-    public String getVis_km() {
-        return vis_km;
+    public String getCloudcover() {
+        return cloudcover;
     }
 
-    public void setVis_km(String vis_km) {
-        this.vis_km = vis_km;
+    public void setCloudcover(String cloudcover) {
+        this.cloudcover = cloudcover;
     }
 
-    public String getPrecip_mm() {
-        return precip_mm;
+    public String getFeelslike() {
+        return feelslike;
     }
 
-    public void setPrecip_mm(String precip_mm) {
-        this.precip_mm = precip_mm;
+    public void setFeelslike(String feelslike) {
+        this.feelslike = feelslike;
     }
 
-    public String getWind_mph() {
-        return wind_mph;
+    public String getVisibility() {
+        return visibility;
     }
 
-    public void setWind_mph(String wind_mph) {
-        this.wind_mph = wind_mph;
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 
-    public String getPressure_mb() {
-        return pressure_mb;
-    }
-
-    public void setPressure_mb(String pressure_mb) {
-        this.pressure_mb = pressure_mb;
-    }
-
-    public String getFeelslike_f() {
-        return feelslike_f;
-    }
-
-    public void setFeelslike_f(String feelslike_f) {
-        this.feelslike_f = feelslike_f;
-    }
-
-    public String getCloud() {
-        return cloud;
-    }
-
-    public void setCloud(String cloud) {
-        this.cloud = cloud;
-    }
-
-    public String getLast_updated_epoch() {
-        return last_updated_epoch;
-    }
-
-    public void setLast_updated_epoch(String last_updated_epoch) {
-        this.last_updated_epoch = last_updated_epoch;
-    }
-
-    public String getFeelslike_c() {
-        return feelslike_c;
-    }
-
-    public void setFeelslike_c(String feelslike_c) {
-        this.feelslike_c = feelslike_c;
-    }
-
-    public String getLast_updated() {
-        return last_updated;
-    }
-
-    public void setLast_updated(String last_updated) {
-        this.last_updated = last_updated;
-    }
-
-    public String getPrecip_in() {
-        return precip_in;
-    }
-
-    public void setPrecip_in(String precip_in) {
-        this.precip_in = precip_in;
-    }
-
-    public String getVis_miles() {
-        return vis_miles;
-    }
-
-    public void setVis_miles(String vis_miles) {
-        this.vis_miles = vis_miles;
+    public void setWeather_icons(String weather_icons) {
+        this.weather_icons = weather_icons;
     }
 }
