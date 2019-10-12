@@ -54,9 +54,8 @@ public class WeatherService extends IntentService {
         location = new Location();
         current = new Current();
         String coordinates = new SharedPreference(getApplicationContext()).init().getString("location","0");
-        String key = "ae17c23c4fa107d50a4a73373c2517ff";
         Map<String, String> paramaters = new HashMap<String, String>();
-        paramaters.put("access_key",key);
+        paramaters.put("access_key",URLs.KeyAPI);
         paramaters.put("query",coordinates);
         try {
             json = OkHttp.getOKHttp(URLs.URLWEATHER,paramaters);

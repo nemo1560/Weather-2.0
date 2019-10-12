@@ -14,7 +14,6 @@ import retrofit2.Response;
 
 public class API {
     private SendPresenter sendPresenter;
-    private GetLocation getLocation;
     private Context context;
 
     public API(SendPresenter sendPresenter , Context context) {

@@ -70,14 +70,6 @@ public class CountryInfoFragment extends DialogFragment {
         logo.setImageBitmap(flag);
         logo.startAnimation(AnimationUtils.loadAnimation(getActivity(),R.anim.alpha_aim));
         logo.setVisibility(View.VISIBLE);
-        logo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),"OK",Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(),MapsActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     @Override

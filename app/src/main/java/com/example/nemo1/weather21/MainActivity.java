@@ -1,54 +1,60 @@
 package com.example.nemo1.weather21;
 
 import android.Manifest;
-import android.app.AlarmManager;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.example.nemo1.weather21.custom.BaseActivity;
 import com.example.nemo1.weather21.custom.CustomTextView;
 import com.example.nemo1.weather21.custom.ScheduleUtils;
-import com.example.nemo1.weather21.custom.Utility;
 import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
+import com.example.nemo1.weather21.model.GetLocation;
 import com.example.nemo1.weather21.model.Intents;
+import com.example.nemo1.weather21.model.SendLocation;
 import com.example.nemo1.weather21.presenter.Presenter;
 import com.example.nemo1.weather21.service.NotiService;
 import com.example.nemo1.weather21.view.SendView;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
-
-public class MainActivity extends AppCompatActivity implements SendView, View.OnClickListener {
+public class MainActivity extends BaseActivity implements SendView, View.OnClickListener, SendLocation, OnMapReadyCallback {
     private CustomTextView cloud,uv,currenttemp,time;
     private ImageView status,country,wall;
     ProgressBar loading;
+    private LatLng point;
     private Presenter presenter;
     private static String temp = "";
-    private AlarmManager alarmManager;
-    private Country countryInfo;
-    private static final int REQUEST_LOCATION_PERMISSION = 100;
+    private String coordinate;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -59,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
             }
         }
     };
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,29 +79,29 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         loading = findViewById(R.id.loading);
         time = findViewById(R.id.time);
         wall = findViewById(R.id.wall);
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        List<String> reqPermissions = Arrays.asList(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.INTERNET);
+        listPermissionRequest(reqPermissions);
+
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        checkPermission();
         initEvent();
     }
 
     private void notConnect() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle("Lỗi kết nối")
-                .setMessage("Thiết bị của bạn chưa kết nối mạng")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-        builder.create().show();
+        Alert("Lỗi kết nối","Thiết bị của bạn chưa kết nối mạng");
     }
 
     @Override
@@ -108,33 +115,6 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
         }
     }
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return connectivityManager.getActiveNetworkInfo() != null;
-    }
-
-    //Check permission GPS granted.
-    public void checkPermission(){
-        if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_LOCATION_PERMISSION);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_LOCATION_PERMISSION:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                } else {
-                    checkPermission();
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
     public void initEvent() {
         currenttemp.setOnClickListener(this);
         country.setOnClickListener(this);
@@ -143,8 +123,23 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
 
     //run present for process getAPI
     public void getAPIWeather(){
-        presenter = new Presenter(this,this);
-        presenter.process();
+        new GetLocation(MainActivity.this,this);
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMyLocationEnabled(true);
+        if(point != null){
+//            mMap.addMarker(new MarkerOptions().position(point).title("Your point"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(point));
+        }else {
+            point = new LatLng(0,0);
+//            mMap.addMarker(new MarkerOptions().position(point).title("Your point"));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 13));
+        }
+
     }
 
     @Override
@@ -153,13 +148,11 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
            if(isNetworkConnected()){
                loading.setVisibility(View.VISIBLE);
                getAPIWeather();
-//               Toast.makeText(this,"Checking",Toast.LENGTH_SHORT).show();
            }else {
                notConnect();
            }
         }if(v.getId() == cloud.getId()){
 //            countryInfo.getCapital();
-            startActivity(new Intent("android.intent.action.Second"));
         }
     }
 
@@ -202,26 +195,6 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
     }
 
     private void setTemp(String temp) {
-        Double t = Double.valueOf(temp);
-        if(t.intValue() < 10){
-            currenttemp.setTextColor(Color.GRAY);
-            wall.setImageResource(R.drawable.white);
-        }else if(t.intValue() >= 10 && t.intValue() < 20){
-            currenttemp.setTextColor(Color.BLUE);
-            wall.setImageResource(R.drawable.blue);
-        }else if(t.intValue() >= 20 && t.intValue() < 30){
-            currenttemp.setTextColor(Color.GREEN);
-            wall.setImageResource(R.drawable.green);
-        }else if(t.intValue() >= 30 && t.intValue() < 34 ){
-            currenttemp.setTextColor(Color.YELLOW);
-            wall.setImageResource(R.drawable.yellow);
-        }else if(t.intValue() >= 34 && t.intValue() < 41){
-            currenttemp.setTextColor(Color.parseColor("#FFA500"));
-            wall.setImageResource(R.drawable.orange);
-        }else{
-            currenttemp.setTextColor(Color.RED);
-            wall.setImageResource(R.drawable.red);
-        }
         currenttemp.setText(temp);
     }
 
@@ -255,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
     private Bitmap flag;
     @Override
     public void getCountryInfo(final Country countryInfo) {
-        this.countryInfo = countryInfo;
         final String link = "https://www.countryflags.io/"+countryInfo.getAlpha2Code()+"/flat/64.png";
         try {
             flag = BitmapFactory.decodeStream(new URL(link).openConnection().getInputStream());
@@ -278,27 +250,39 @@ public class MainActivity extends AppCompatActivity implements SendView, View.On
 
     @Override
     public void getError(String error) {
-        Utility.Alert(this,"Lỗi",error).setNegativeButton("Cancel",null).create().show();
+        Alert("Lỗi",error);
         loading.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle("Thoát")
-                .setMessage("Bạn đồng thoát chương trình")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        creatService();
-                        exit();
-                    }
-                })
-                .setNegativeButton("Cancel",null);
-        builder.create().show();
+        Confirm("Thoát", "Bạn muốn thoát ứng dụng", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                creatService();
+                exit();
+            }
+        });
     }
 
     public void exit(){
         super.onBackPressed();
     }
+
+    @Override
+    public void onSendLocation(String location) {
+        coordinate = location;
+        Log.d("location-main",coordinate);
+        share().edit().putString("location",coordinate).apply();
+        presenter = new Presenter(this,this);
+        presenter.process();
+    }
+
+    @Override
+    public void onSendLocationLatlng(LatLng latLng) {
+        point = latLng;
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
 }

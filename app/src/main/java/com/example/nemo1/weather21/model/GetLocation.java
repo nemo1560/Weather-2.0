@@ -1,6 +1,7 @@
 package com.example.nemo1.weather21.model;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -15,6 +16,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 /*
 *
@@ -26,22 +28,24 @@ public class GetLocation implements GoogleApiClient.ConnectionCallbacks, GoogleA
     private Context context;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
-    private Location location;
+    private String coordinateString;
+    private LatLng coordinate;
+    private SendLocation sendLocation;
     private static final long UPDATE_INTERVAL = 1000;
     private static final long FASTEST_INTERVAL = 1000;
-    private SendLocation sendLocation;
 
-    public GetLocation(Context context, SendLocation sendLocation) {
+    public GetLocation(Context context,SendLocation sendLocation) {
         this.context = context;
         this.sendLocation = sendLocation;
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         buildLocationRequest();
         buildGoogleAPIClientRequest();
         googleApiClient.connect();
-        getGPS();
     }
 
     //build LocationRequest object
-    public void buildLocationRequest() {
+    private void buildLocationRequest() {
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(UPDATE_INTERVAL);
@@ -49,7 +53,7 @@ public class GetLocation implements GoogleApiClient.ConnectionCallbacks, GoogleA
     }
 
     //build GoogleAPIClientRequest object
-    public void buildGoogleAPIClientRequest() {
+    private void buildGoogleAPIClientRequest() {
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(context)
                     .addConnectionCallbacks(this)
@@ -58,24 +62,16 @@ public class GetLocation implements GoogleApiClient.ConnectionCallbacks, GoogleA
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onConnected( Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//             TODO: Consider calling
-//                ActivityCompat#requestPermissions
-//             here to request the missing permissions, and then overriding
-//               public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                                                      int[] grantResults)
-//             to handle the case where the user grants the permission. See the documentation
-//             for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        Location location2 = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if (location2 != null){
-            location = location2;
-            String locationString = location.getLatitude()+","+location.getLongitude();
-            Log.d("location-log",locationString);
-            sendLocation.onSendLocation(locationString);
+        Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        if (location != null){
+            coordinateString = location.getLatitude()+","+location.getLongitude();
+            coordinate = new LatLng(location.getLatitude(),location.getLongitude());
+            Log.d("location-log",coordinateString);
+            sendLocation.onSendLocation(coordinateString);
+            sendLocation.onSendLocationLatlng(coordinate);
         }
     }
 
@@ -91,15 +87,7 @@ public class GetLocation implements GoogleApiClient.ConnectionCallbacks, GoogleA
 
     @Override
     public void onLocationChanged(Location location) {
-        this.location = location;
         String locationString = location.getLatitude()+","+location.getLongitude();
         Log.d("location-log",locationString);
-        sendLocation.onSendLocation(locationString);
-    }
-
-    public void getGPS(){
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
     }
 }

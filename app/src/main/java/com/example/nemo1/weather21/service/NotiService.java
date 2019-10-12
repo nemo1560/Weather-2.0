@@ -33,6 +33,7 @@ import com.example.nemo1.weather21.model.OkHttp;
 import com.example.nemo1.weather21.model.SendLocation;
 import com.example.nemo1.weather21.model.SharedPreference;
 import com.example.nemo1.weather21.model.URLs;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -206,16 +207,6 @@ public class NotiService extends Service implements SendLocation {
             String json = OkHttp.getOKHttp(URLs.URLWEATHER,paramaters);
             if(json != null && json.length() > 0){
                 JSONObject jsonObject = new JSONObject(json);
-//
-//                JSONObject locationObj = jsonObject.getJSONObject("location");
-//                location.setName(locationObj.getString("name"));
-//                location.setRegion(locationObj.getString("region"));
-//                location.setCountry(locationObj.getString("country"));
-//                location.setLat(locationObj.getString("lat"));
-//                location.setLon(locationObj.getString("lon"));
-//                location.setTz_id(locationObj.getString("tz_id"));
-//                location.setLocaltime_epoch(locationObj.getString("localtime_epoch"));
-//                location.setLocaltime(locationObj.getString("localtime"));
 
                 JSONObject currentObj = jsonObject.getJSONObject("current");
                 current.setTemperature(currentObj.getString("temperature"));
@@ -232,47 +223,11 @@ public class NotiService extends Service implements SendLocation {
                 current.setWeather_icons(currentObj.getJSONArray("weather_icons").getString(0));
                 current.setWeather_descriptions(currentObj.getJSONArray("weather_descriptions").getString(0));
 
-//                JSONObject conditionObj = currentObj.getJSONObject("condition");
-//                condition.setText(conditionObj.getString("text"));
-//                condition.setIcon(conditionObj.getString("icon"));
-//                condition.setCode(conditionObj.getString("code"));
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
     }
-
-//    private boolean anonymous;
-//    private void sendFirebase(String temp, signal signal) {
-//        this.signal = signal;
-//        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-//        mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-//            @Override
-//            public void onComplete(@NonNull Task<AuthResult> task) {
-//                FirebaseUser user = mAuth.getCurrentUser();
-//                anonymous = user.isAnonymous();
-//            }
-//        });
-//        if(anonymous){
-//            signal.setValue(temp);
-//        }
-//    }
-//    private void readFirebase(){
-//        final DatabaseReference myRef = database.getReference("notifi");
-//        myRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                String temp = dataSnapshot.getValue(String.class);
-////                setNotification(temp, currentTime);
-////                myRef.setValue("");
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//    }
 
     //restart service
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -302,6 +257,11 @@ public class NotiService extends Service implements SendLocation {
     @Override
     public void onSendLocation(String location) {
         coordinates = location;
+    }
+
+    @Override
+    public void onSendLocationLatlng(LatLng latLng) {
+
     }
 
 }
