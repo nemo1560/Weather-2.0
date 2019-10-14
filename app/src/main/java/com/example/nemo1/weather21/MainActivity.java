@@ -48,8 +48,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements SendView, View.OnClickListener, SendLocation, OnMapReadyCallback {
-    private CustomTextView cloud,uv,currenttemp,time;
-    private ImageView status,country,wall;
+    private CustomTextView cloud,uv,currenttemp,time,feel_temp,pressure;
+    private ImageView country,wall;
     ProgressBar loading;
     private LatLng point;
     private Presenter presenter;
@@ -75,8 +75,9 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
         cloud = findViewById(R.id.cloud);
         uv = findViewById(R.id.uv);
         currenttemp = findViewById(R.id.temp);
-        status = findViewById(R.id.status);
+        feel_temp = findViewById(R.id.feel_temp);
         loading = findViewById(R.id.loading);
+        pressure = findViewById(R.id.pressure);
         time = findViewById(R.id.time);
         wall = findViewById(R.id.wall);
 
@@ -165,37 +166,44 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
     @Override
     public void onViewCurrent(final Current current) {
         cloud.setText(current.getCloudcover());
+        pressure.setText(current.getPressure());
         setUV(current.getUv_index());
-        temp = current.getTemperature();
-        setTemp(temp);
-        status.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WeatherInfoFragment weatherInfoFragment = WeatherInfoFragment.newInstance(current);
-                weatherInfoFragment.show(getSupportFragmentManager(),"weatherInfo");
-            }
-        });
-
-        final String link = current.getWeather_icons();
-        Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                InputStream in = null;
-                try {
-                    in = new URL(link).openStream();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                img = BitmapFactory.decodeStream(in);
-                status.setImageBitmap(img);
-
-            }
-        });
+        setTemp(current.getTemperature()+"°",current.getFeelslike()+"°");
     }
 
-    private void setTemp(String temp) {
+    private void setTemp(String temp,String feel) {
+        Double t = Double.valueOf(temp.substring(0,2));
+        Double feel_t = Double.valueOf(feel.substring(0,2));
+        if(t.intValue() < 10){
+            currenttemp.setTextColor(Color.GRAY);
+        }else if(t.intValue() >= 10 && t.intValue() < 20){
+            currenttemp.setTextColor(Color.BLUE);
+        }else if(t.intValue() >= 20 && t.intValue() < 30){
+            currenttemp.setTextColor(Color.GREEN);
+        }else if(t.intValue() >= 30 && t.intValue() < 34 ){
+            currenttemp.setTextColor(Color.YELLOW);
+        }else if(t.intValue() >= 34 && t.intValue() < 41){
+            currenttemp.setTextColor(Color.parseColor("#FFA500"));
+        }else{
+            currenttemp.setTextColor(Color.RED);
+        }
+
+        if(feel_t.intValue() < 10){
+            feel_temp.setTextColor(Color.GRAY);
+        }else if(feel_t.intValue() >= 10 && feel_t.intValue() < 20){
+            feel_temp.setTextColor(Color.BLUE);
+        }else if(feel_t.intValue() >= 20 && feel_t.intValue() < 30){
+            feel_temp.setTextColor(Color.GREEN);
+        }else if(feel_t.intValue() >= 30 && feel_t.intValue() < 34 ){
+            feel_temp.setTextColor(Color.YELLOW);
+        }else if(feel_t.intValue() >= 34 && feel_t.intValue() < 41){
+            feel_temp.setTextColor(Color.parseColor("#FFA500"));
+        }else{
+            feel_temp.setTextColor(Color.RED);
+        }
+
         currenttemp.setText(temp);
+        feel_temp.setText(feel);
     }
 
     private void setUV(String UV) {
@@ -257,6 +265,11 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
     @Override
     public void onBackPressed() {
         Confirm("Thoát", "Bạn muốn thoát ứng dụng", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 creatService();

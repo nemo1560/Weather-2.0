@@ -66,26 +66,42 @@
                     <com.example.nemo1.weather21.custom.CustomTextView
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight=".7"
+                        android:layout_weight=".6"
                         android:text="C"
                         android:textAlignment="center"
                         android:textSize="100dp" />
 
-                    <ImageView
-                        android:id="@+id/status"
+                    <com.example.nemo1.weather21.custom.CustomTextView
+                        android:id="@+id/feel_like"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight=".3" />
+                        android:text="Feel like"
+                        android:textSize="25dp"
+                        android:layout_weight=".4" />
                 </LinearLayout>
 
-                <com.example.nemo1.weather21.custom.CustomTextView
-                    android:id="@+id/temp"
+                <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight=".6"
+                    android:layout_weight="0.6"
                     android:background="@drawable/border"
-                    android:textColor="@android:color/white"
-                    android:textSize="100dp" />
+                    android:textColor="@android:color/white">
+                    <com.example.nemo1.weather21.custom.CustomTextView
+                        android:id="@+id/temp"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight=".6"
+                        android:textColor="@android:color/white"
+                        android:textSize="100dp" />
+                    <com.example.nemo1.weather21.custom.CustomTextView
+                        android:id="@+id/feel_temp"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight=".4"
+                        android:textColor="@android:color/white"
+                        android:textSize="100dp" />
+                </LinearLayout>
             </LinearLayout>
 
             <ProgressBar
@@ -158,6 +174,30 @@
 
                         <com.example.nemo1.weather21.custom.CustomTextView
                             android:id="@+id/time"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:textSize="20dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight=".6"
+                        android:background="@drawable/border"
+                        android:elevation="5dp">
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="Pressure"
+                            android:textAlignment="center" />
+
+                        <com.example.nemo1.weather21.custom.CustomTextView
+                            android:id="@+id/pressure"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
