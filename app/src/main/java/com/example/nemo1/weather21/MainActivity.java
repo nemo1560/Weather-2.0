@@ -91,8 +91,6 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
                 Manifest.permission.ACCESS_WIFI_STATE,
                 Manifest.permission.INTERNET);
         listPermissionRequest(reqPermissions);
-
-
     }
 
     @Override
@@ -276,6 +274,12 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
                 exit();
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        creatService();
+        super.onDestroy();
     }
 
     public void exit(){
