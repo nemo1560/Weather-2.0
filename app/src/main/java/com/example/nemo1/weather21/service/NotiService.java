@@ -137,9 +137,10 @@ public class NotiService extends Service implements SendLocation {
                 notificationManager.createNotificationChannel(notificationChannel);
 
                 builder = new Notification.Builder(this, CHANNEL_ID)
-                        .setContentTitle("Nhiệt độ: "+temp+"°C")
-                        .setContentText("Áp suất: "+current.getPressure())
+                        .setContentTitle("Temperature: "+temp+"°C")
+                        .setContentText("Pressure: "+current.getPressure()+"MB _ "+"Humidity: "+current.getHumidity())
                         .setSmallIcon(Icon.createWithBitmap(textAsBitmap(temp+"°C", (float) 100,Color.WHITE)))
+                        .setLargeIcon(textAsBitmap(temp+"°C", (float) 30,Color.WHITE))
                         .setAutoCancel(true)
                         .setChannelId(CHANNEL_ID)
                         .setOngoing(false)
@@ -161,10 +162,10 @@ public class NotiService extends Service implements SendLocation {
             else {
                 //notification cho dong anroid thap hon 8.0
                 cbuilder = new NotificationCompat.Builder(this);
-                cbuilder.setContentTitle("Nhiệt độ: "+temp+"°C")
-                        .setContentText("Áp suất: "+current.getPressure())
+                cbuilder.setContentTitle("Temperature: "+temp+"°C")
+                        .setContentText("Pressure: "+current.getPressure()+"MB _ "+"Humidity: "+current.getHumidity())
                         .setSmallIcon(R.mipmap.weather_local)
-                        .setLargeIcon(textAsBitmap(temp+"°C", (float) 100,Color.BLACK))
+                        .setLargeIcon(textAsBitmap(temp+"°C", (float) 30,Color.BLACK))
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
                         .setLights(Color.parseColor("#46d3a0"), 500, 2000)

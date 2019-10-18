@@ -164,14 +164,16 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
     @Override
     public void onViewCurrent(final Current current) {
         cloud.setText(current.getCloudcover());
-        pressure.setText(current.getPressure());
+        pressure.setText(current.getPressure()+" MB");
         setUV(current.getUv_index());
         setTemp(current.getTemperature()+"°",current.getFeelslike()+"°");
     }
 
     private void setTemp(String temp,String feel) {
-        Double t = Double.valueOf(temp.substring(0,2));
-        Double feel_t = Double.valueOf(feel.substring(0,2));
+        temp = temp.replace("°","");
+        feel = feel.replace("°","");
+        Double t = Double.valueOf(temp);
+        Double feel_t = Double.valueOf(feel);
         if(t.intValue() < 10){
             currenttemp.setTextColor(Color.GRAY);
         }else if(t.intValue() >= 10 && t.intValue() < 20){
@@ -200,8 +202,8 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
             feel_temp.setTextColor(Color.RED);
         }
 
-        currenttemp.setText(temp);
-        feel_temp.setText(feel);
+        currenttemp.setText(temp+"°");
+        feel_temp.setText(feel+"°");
     }
 
     private void setUV(String UV) {
@@ -235,11 +237,16 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
     @Override
     public void getCountryInfo(final Country countryInfo) {
         final String link = "https://www.countryflags.io/"+countryInfo.getAlpha2Code()+"/flat/64.png";
-        try {
-            flag = BitmapFactory.decodeStream(new URL(link).openConnection().getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    flag = BitmapFactory.decodeStream(new URL(link).openConnection().getInputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.run();
         loading.setVisibility(View.INVISIBLE);
         country.setImageBitmap(flag);
         country.setOnClickListener(new View.OnClickListener() {
@@ -263,11 +270,6 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
     @Override
     public void onBackPressed() {
         Confirm("Thoát", "Bạn muốn thoát ứng dụng", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 creatService();

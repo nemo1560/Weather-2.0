@@ -96,11 +96,16 @@ public class BaseActivity extends FragmentActivity {
 
     }
 
-    public void Confirm(String title, String massage,DialogInterface.OnClickListener cancel, DialogInterface.OnClickListener ok) {
+    public void Confirm(String title, String massage, DialogInterface.OnClickListener ok) {
         final AlertDialog builder = new AlertDialog.Builder(context).create();
         builder.setTitle(title);
         builder.setMessage(massage);
-        builder.setButton2("Cancel", cancel);
+        builder.setButton2("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                builder.dismiss();
+            }
+        });
         builder.setButton("OK", ok);
         builder.show();
     }

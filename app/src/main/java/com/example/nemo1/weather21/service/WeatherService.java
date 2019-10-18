@@ -54,7 +54,7 @@ public class WeatherService extends IntentService {
         location = new Location();
         current = new Current();
         String coordinates = new SharedPreference(getApplicationContext()).init().getString("location","0");
-        Map<String, String> paramaters = new HashMap<String, String>();
+        Map<String, String> paramaters = new HashMap<>();
         paramaters.put("access_key",URLs.KeyAPI);
         paramaters.put("query",coordinates);
         try {
@@ -106,20 +106,19 @@ public class WeatherService extends IntentService {
             Log.d("countryLog",json);
             JSONObject jsonObject = new JSONObject(json);
             JSONObject addressObj = jsonObject.getJSONObject("address");
-            String country = addressObj.getString("country");
-            getCountryInfo(country);
+            String country_code = addressObj.getString("country_code");
+            getCountryInfo(country_code);
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private void getCountryInfo(String country){
+    private void getCountryInfo(String country_code){
         String json;
         try {
-            json = OkHttp.getOKHttp(URLs.URLCOUNTRYINFO+country,null);
+            json = OkHttp.getOKHttp(URLs.URLCOUNTRYINFO+country_code,null);
             if(json != null && json.length() > 0 ){
-                JSONArray jsonArray = new JSONArray(json);
-                JSONObject jsonObject = jsonArray.getJSONObject(0);
+                JSONObject jsonObject = new JSONObject(json);
                 this.country.setAlpha2Code(jsonObject.getString("alpha2Code"));
                 this.country.setAlpha3Code(jsonObject.getString("alpha3Code"));
                 this.country.setName(jsonObject.getString("name"));
@@ -134,8 +133,9 @@ public class WeatherService extends IntentService {
                 JSONArray languages = jsonObject.getJSONArray("languages");
                 this.country.setLanguages(new JSONObject(languages.getString(0)).getString("name"));
                 JSONArray currencies = jsonObject.getJSONArray("currencies");
-                this.country.setCurrencies(new JSONObject(currencies.getString(0)).getString("name"));
+                this.country.setCurrencies(new JSONObject(currencies.getString(0)).getString("code"));
                 this.country.setFlag(jsonObject.getString("flag"));
+
             }
         } catch (IOException | JSONException e) {
             Log.d("ErrorAPICountry",e.toString());
