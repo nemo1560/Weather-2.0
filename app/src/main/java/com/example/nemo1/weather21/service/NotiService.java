@@ -95,7 +95,7 @@ public class NotiService extends Service implements SendLocation {
                     msg.setData(data);
                     msg.arg1 = 1;
                     mHandler.sendMessage(msg);
-                    Thread.sleep(60 * 60 * 1000);
+                    Thread.sleep(2*60*60*1000);
                 } catch (InterruptedException e) {
                     e.toString();
                 }
@@ -140,7 +140,6 @@ public class NotiService extends Service implements SendLocation {
                         .setContentTitle("Temperature: "+temp+"°C")
                         .setContentText("Pressure: "+current.getPressure()+"MB _ "+"Humidity: "+current.getHumidity())
                         .setSmallIcon(Icon.createWithBitmap(textAsBitmap(temp+"°C", (float) 100,Color.WHITE)))
-                        .setLargeIcon(textAsBitmap(temp+"°C", (float) 30,Color.WHITE))
                         .setAutoCancel(true)
                         .setChannelId(CHANNEL_ID)
                         .setOngoing(false)
@@ -188,8 +187,8 @@ public class NotiService extends Service implements SendLocation {
         paint.setColor(textColor);
         paint.setTextAlign(Paint.Align.LEFT);
         float baseline = -paint.ascent(); // ascent() is negative
-        int width = (int) (paint.measureText(text) + 0.5f); // round
-        int height = (int) (baseline + paint.descent() + 0.5f);
+        int width = (int) (paint.measureText(text) + 1.5f); // round
+        int height = (int) (baseline + paint.descent() + 1.5f);
         Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(image);
         canvas.drawText(text, 0, baseline, paint);
