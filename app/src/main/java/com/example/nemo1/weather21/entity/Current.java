@@ -1,36 +1,59 @@
 package com.example.nemo1.weather21.entity;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import org.json.JSONArray;
 
 import java.io.Serializable;
-
+@Entity(tableName = "CurrentInfo")
 public class Current implements Serializable {
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name =  "_id")
+    private Long _id;
 
+    @ColumnInfo(name =  "weather_icons")
     private String weather_icons;
 
+    @ColumnInfo(name =  "weather_descriptions")
     private String weather_descriptions;
 
+    @ColumnInfo(name =  "temperature")
     private String temperature;
 
+    @ColumnInfo(name =  "wind_speed")
     private String wind_speed;
 
+    @ColumnInfo(name =  "wind_dir")
     private String wind_dir;
 
+    @ColumnInfo(name =  "wind_degree")
     private String wind_degree;
 
+    @ColumnInfo(name =  "is_day")
     private String is_day;
 
+    @ColumnInfo(name =  "pressure")
     private String pressure;
 
+    @ColumnInfo(name =  "humidity")
     private String humidity;
 
+    @ColumnInfo(name =  "uv_index")
     private String uv_index;
 
+    @ColumnInfo(name =  "cloudcover")
     private String cloudcover;
 
+    @ColumnInfo(name =  "feelslike")
     private String feelslike;
 
+    @ColumnInfo(name =  "visibility")
     private String visibility;
+
+    @ColumnInfo(name = "time_data")
+    private String time_data;
 
     public Current() {
 
@@ -138,5 +161,21 @@ public class Current implements Serializable {
 
     public void setWeather_icons(String weather_icons) {
         this.weather_icons = weather_icons;
+    }
+
+    public Long get_id() {
+        return _id;
+    }
+
+    public void set_id(Long _id) {
+        this._id = _id;
+    }
+
+    public String getTime_data() {
+        return time_data;
+    }
+
+    public void setTime_data(String time_data) {
+        this.time_data = time_data;
     }
 }

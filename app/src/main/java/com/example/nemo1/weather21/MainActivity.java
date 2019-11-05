@@ -9,6 +9,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +28,7 @@ import android.widget.ProgressBar;
 import com.example.nemo1.weather21.custom.BaseActivity;
 import com.example.nemo1.weather21.custom.CustomTextView;
 import com.example.nemo1.weather21.custom.ScheduleUtils;
+import com.example.nemo1.weather21.entity.CheckInfo;
 import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
@@ -33,6 +38,9 @@ import com.example.nemo1.weather21.model.SendLocation;
 import com.example.nemo1.weather21.presenter.Presenter;
 import com.example.nemo1.weather21.service.NotiService;
 import com.example.nemo1.weather21.view.SendView;
+import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.CubeGrid;
+import com.github.ybq.android.spinkit.style.FadingCircle;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -45,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements SendView, View.OnClickListener, SendLocation, OnMapReadyCallback {
@@ -66,6 +75,9 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
         }
     };
     private GoogleMap mMap;
+    SensorManager sensorManager;
+    List<Sensor> sensorList;
+    SensorEventListener sensorEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +101,26 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_NETWORK_STATE,
                 Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.INTERNET);
         listPermissionRequest(reqPermissions);
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorList = sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
+        sensorEventListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if(event.sensor.getType() == sensorList.get(0).getType()){
+                    pressure.setText(event.values[0]+" MB");
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        };
     }
 
     @Override
@@ -163,10 +193,25 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
     private Bitmap img;
     @Override
     public void onViewCurrent(final Current current) {
+        InsertDB(current);
         cloud.setText(current.getCloudcover());
-        pressure.setText(current.getPressure()+" MB");
+        if(pressure.getText().length() == 0){
+            pressure.setText(current.getPressure()+" MB");
+        }
         setUV(current.getUv_index());
         setTemp(current.getTemperature()+"°",current.getFeelslike()+"°");
+    }
+
+    private void InsertDB(Current current) {
+        db.current().insertCurrent(current);
+        Current item = db.current().getCurrent();
+        if(item != null){
+            CheckInfo info = new CheckInfo();
+            info.setDataId(item.get_id());
+            info.setDataDay(getCurrentDate(Calendar.getInstance().getTime()));
+            info.setDataTime(getCurrentTime(Calendar.getInstance().getTime()));
+            db.current().insertResult(info);
+        }
     }
 
     private void setTemp(String temp,String feel) {
