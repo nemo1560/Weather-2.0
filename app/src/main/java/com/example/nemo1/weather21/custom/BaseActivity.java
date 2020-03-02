@@ -14,9 +14,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 
-import com.example.nemo1.weather21.Data.DB;
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,13 +22,11 @@ import java.util.List;
 public class BaseActivity extends FragmentActivity {
     private Context context;
     private final static int REQUEST_CODE = 100;
-    public static DB db;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.context = BaseActivity.this;
-        db = DB.createTable(BaseActivity.this);
     }
 
     //Demo

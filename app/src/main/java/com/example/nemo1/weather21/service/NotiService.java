@@ -26,6 +26,7 @@ import android.util.Log;
 import com.example.nemo1.weather21.MainActivity;
 import com.example.nemo1.weather21.R;
 import com.example.nemo1.weather21.custom.ScheduleUtils;
+import com.example.nemo1.weather21.entity.CheckInfo;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
 import com.example.nemo1.weather21.model.Intents;
@@ -40,10 +41,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import static com.example.nemo1.weather21.custom.BaseActivity.getCurrentDate;
+import static com.example.nemo1.weather21.custom.BaseActivity.getCurrentTime;
 
 public class NotiService extends Service implements SendLocation {
     private String coordinates ="";
@@ -95,7 +100,7 @@ public class NotiService extends Service implements SendLocation {
                     msg.setData(data);
                     msg.arg1 = 1;
                     mHandler.sendMessage(msg);
-                    Thread.sleep(2*60*60*1000);
+                    Thread.sleep(1*60*60*1000);
                 } catch (InterruptedException e) {
                     e.toString();
                 }
@@ -204,9 +209,10 @@ public class NotiService extends Service implements SendLocation {
         paramaters.put("query",coordinates);
         try {
             String json = OkHttp.getOKHttp(URLs.URLWEATHER,paramaters);
+            Log.d("JSONDATA",json);
             if(json != null && json.length() > 0){
+                sendAPI(json);
                 JSONObject jsonObject = new JSONObject(json);
-
                 JSONObject currentObj = jsonObject.getJSONObject("current");
                 current.setTemperature(currentObj.getString("temperature"));
                 current.setIs_day(currentObj.getString("is_day"));
@@ -239,17 +245,21 @@ public class NotiService extends Service implements SendLocation {
         super.onTaskRemoved(rootIntent);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onLowMemory() {
         super.onLowMemory();
         Log.d("STOP","00000000000000000");
+        ScheduleUtils.ScheduleUtils(getApplicationContext());
         onCreate();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d("STOP","00000000000000000");
+        ScheduleUtils.ScheduleUtils(getApplicationContext());
         onCreate();
     }
 
@@ -263,5 +273,15 @@ public class NotiService extends Service implements SendLocation {
 
     }
 
+    private void sendAPI(String json) {
+        try {
+            String result = OkHttp.postOKHttpString("http://nemo1560.ddns.net:2000/weather/insert",json);
+            if(result != null){
+                Log.d("result",result);
+            }
+        } catch (IOException e) {
+            Log.d("POST",e.toString());
+        }
+    }
 }
 

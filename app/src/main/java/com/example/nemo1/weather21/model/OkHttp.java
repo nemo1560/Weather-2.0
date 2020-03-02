@@ -1,5 +1,6 @@
 package com.example.nemo1.weather21.model;
 
+import android.text.TextUtils;
 import android.util.Log;
 import okhttp3.*;
 import org.json.JSONObject;
@@ -106,7 +107,7 @@ public class OkHttp {
         return okHttpClient().newCall(request).execute().body().string();
     }
 
-    public static String postOKHttp (String url, Map<String, String> paramaters) throws IOException {
+    public static String postOKHttp(String url, Map<String, String> paramaters) throws IOException {
         RequestBody requestBody = null;
         MultipartBody.Builder body = new MultipartBody.Builder().setType(MultipartBody.FORM);
         if(paramaters != null && paramaters.size() > 0){
@@ -117,6 +118,15 @@ public class OkHttp {
             }
         }
         requestBody = body.build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+        return okHttpClient().newCall(request).execute().body().string();
+    }
+
+    public static String postOKHttpString(String url, String json) throws IOException {
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"),json);
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)

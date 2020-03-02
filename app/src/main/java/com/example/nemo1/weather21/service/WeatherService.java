@@ -8,6 +8,7 @@ import android.util.Log;
 import com.example.nemo1.weather21.entity.Country;
 import com.example.nemo1.weather21.entity.Current;
 import com.example.nemo1.weather21.entity.Location;
+import com.example.nemo1.weather21.model.HttpUtils;
 import com.example.nemo1.weather21.model.Intents;
 import com.example.nemo1.weather21.model.OkHttp;
 import com.example.nemo1.weather21.model.SharedPreference;
@@ -18,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,8 +62,8 @@ public class WeatherService extends IntentService {
         try {
             json = OkHttp.getOKHttp(URLs.URLWEATHER,paramaters);
             if(json != null && json.length() > 0){
+                Log.d("currentLog",json);
                 JSONObject jsonObject = new JSONObject(json);
-
                 JSONObject locationObj = jsonObject.getJSONObject("location");
                 location.setName(locationObj.getString("name"));
                 location.setRegion(locationObj.getString("region"));
@@ -91,7 +93,7 @@ public class WeatherService extends IntentService {
         }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
-            send(e.toString());
+            /*send(e.toString());*/
         }
     }
 
@@ -135,11 +137,16 @@ public class WeatherService extends IntentService {
                 JSONArray currencies = jsonObject.getJSONArray("currencies");
                 this.country.setCurrencies(new JSONObject(currencies.getString(0)).getString("code"));
                 this.country.setFlag(jsonObject.getString("flag"));
-
             }
         } catch (IOException | JSONException e) {
             Log.d("ErrorAPICountry",e.toString());
         }
         send(null);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        onCreate();
     }
 }

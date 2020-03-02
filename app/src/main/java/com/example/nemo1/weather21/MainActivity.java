@@ -75,9 +75,6 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
         }
     };
     private GoogleMap mMap;
-    SensorManager sensorManager;
-    List<Sensor> sensorList;
-    SensorEventListener sensorEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,21 +103,21 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
                 Manifest.permission.INTERNET);
         listPermissionRequest(reqPermissions);
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        sensorList = sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
-        sensorEventListener = new SensorEventListener() {
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                if(event.sensor.getType() == sensorList.get(0).getType()){
-                    pressure.setText(event.values[0]+" MB");
-                }
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-            }
-        };
+//        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+//        sensorList = sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
+//        sensorEventListener = new SensorEventListener() {
+//            @Override
+//            public void onSensorChanged(SensorEvent event) {
+//                if(event.sensor.getType() == sensorList.get(0).getType()){
+//                    pressure.setText(event.values[0]+" MB");
+//                }
+//            }
+//
+//            @Override
+//            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+//
+//            }
+//        };
     }
 
     @Override
@@ -193,25 +190,11 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
     private Bitmap img;
     @Override
     public void onViewCurrent(final Current current) {
-        InsertDB(current);
+//        InsertDB(current);
         cloud.setText(current.getCloudcover());
-        if(pressure.getText().length() == 0){
-            pressure.setText(current.getPressure()+" MB");
-        }
+        pressure.setText(current.getPressure()+" MB");
         setUV(current.getUv_index());
         setTemp(current.getTemperature()+"°",current.getFeelslike()+"°");
-    }
-
-    private void InsertDB(Current current) {
-        db.current().insertCurrent(current);
-        Current item = db.current().getCurrent();
-        if(item != null){
-            CheckInfo info = new CheckInfo();
-            info.setDataId(item.get_id());
-            info.setDataDay(getCurrentDate(Calendar.getInstance().getTime()));
-            info.setDataTime(getCurrentTime(Calendar.getInstance().getTime()));
-            db.current().insertResult(info);
-        }
     }
 
     private void setTemp(String temp,String feel) {
@@ -270,12 +253,11 @@ public class MainActivity extends BaseActivity implements SendView, View.OnClick
     //Tao service class
     public void creatService(){
         //Start jobSchedule để lặp lại service.
-        if(Build.VERSION.SDK_INT ==Build.VERSION_CODES.P){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
             ScheduleUtils.ScheduleUtils(getBaseContext());
-        }else {
-            Intent intent = new Intent(this,NotiService.class);
-            startService(intent);
         }
+        Intent intent = new Intent(this,NotiService.class);
+        startService(intent);
     }
 
     private Bitmap flag;
