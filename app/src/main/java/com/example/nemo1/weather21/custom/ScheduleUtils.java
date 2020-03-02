@@ -17,6 +17,9 @@ public class ScheduleUtils {
         JobInfo.Builder job = new JobInfo.Builder(0,componentName);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             job.setMinimumLatency(1*60*60*1000);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                job.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+            }
             job.setOverrideDeadline(1*60*60*1000);
         }else {
             job.setPeriodic(1*60*60*1000);
